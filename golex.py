@@ -96,7 +96,7 @@ t_LE      = r'<='
 t_GT      = r'>'
 t_GE      = r'>='
 t_LAND    = r'&&'
-t_LOR     = r'||'
+t_LOR     = r'\|\|'
 t_LNOT    = r'!'
 t_EQ      = r'=='
 t_NE      = r'!='
@@ -107,23 +107,23 @@ t_NE      = r'!='
 escapes_not_b = r'nrt\"'
 escapes = escapes_not_b + "b"
 def _replace_escape_codes(t):
-    t.value=t.value.replace('\\n','\u000A')
-    t.value=t.value.replace('\\t','\u0009')
-    t.value=t.value.replace('\\','\u005C')
-    t.value=t.value.replace('\\"','\u0022')
-    t.value=t.value.replace('\\r','\u000D')
+    t.value = t.value.replace('\\n','\u000A')
+    t.value = t.value.replace('\\t','\u0009')
+    t.value = t.value.replace('\\','\u005C')
+    t.value = t.value.replace('\\"','\u0022')
+    t.value = t.value.replace('\\r','\u000D')
     return t
 
 
 #---------Literales----------
 
 def t_FLOAT(t):
-	r'(([0-9]+\.[0-9]*)|(\.[0-9]+))([eE][-+]?[0-9]+)?'
+    r'(([0-9]+\.[0-9]*)|(\.[0-9]+))([eE][-+]?[0-9]+)?'
     t.value=float(t.value)
     return t
 
 def t_INTEGER(t):
-	r'0x[0-9]+[A-F]+|0x[A-F]+[0-9]+|0x[0-9]+[A-F]*|0x[0-9]*[A-F]+|[0-9]+|0[0-7]+'
+    r'0x[0-9]+[A-F]+|0x[A-F]+[0-9]+|0x[0-9]+[A-F]*|0x[0-9]*[A-F]+|[0-9]+|0[0-7]+'
     t.value = int(str(t.value),0)
     return t
       
@@ -135,14 +135,14 @@ def t_STRING(t):
     return t
  
 def t_BOOLEAN(t):
-	r'True|False' 
+    r'True|False' 
     if t.value.upper() in tokens:
         t.type=t.value.upper()
     return t
 
 #----------keywords-----------
 def t_ID(t):
-	r'[a-zA-Z_][a-zA-Z0-9_]*'
+    r'[a-zA-Z_][a-zA-Z0-9_]*'
     if t.value.upper() in tokens:
         t.type = t.value.upper()
     return t
@@ -151,14 +151,14 @@ def t_ID(t):
  #---------Control de flujo---------
 
 def t_ELSE(t):
-	r'else'
-	return t_ELSE
+    r'else'
+    return t_ELSE
     
 def t_IF(t):
-	r'if'
-	return t_IF
+    r'if'
+    return t_IF
 
- def t_WHILE(t):
+def t_WHILE(t):
     r'while'
     return t_WHILE
  
@@ -185,13 +185,13 @@ def t_error(t):
  
 # Comentarios no cerrados estilo-C
 def t_COMMENT_UNTERM(t):
-	r'/\*(.|\n)*'
+    r'/\*(.|\n)*'
     print("Comentario sin terminar '%s'"  % t.value[0], t.lineno)
     t.lexer.skip(1)
 
 # Constantes de cadena no terminadas
 def t_STRING_UNTERM(t):
-	r'\"(.|\n)*'
+    r'\"(.|\n)*'
     print("Cadena sin terminar '%s'" % t.value[0], t.lineno)
     t.lexer.skip(1)
 
