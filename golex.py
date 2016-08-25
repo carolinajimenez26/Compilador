@@ -47,6 +47,7 @@ reserved = {
  
 #------------Operadores----------
 operators = {
+
     r'+'  : "PLUS",
     r'-'  : "MINUS",    
     r'*'  : "TIMES",    
@@ -55,7 +56,10 @@ operators = {
     r';'  : "SEMI",     
     r'('  : "LPAREN",   
     r')'  : "RPAREN",   
-    r','  : "COMMA",    
+    r','  : "COMMA", 
+    r'{' : "LBRACE", 
+    r'}' : "RBRACE",
+
     r'<'  : "LT",       
     r'<=' : "LE",       
     r'==' : "EQ",       
@@ -69,6 +73,9 @@ operators = {
 
 t_ignore = ' \t\r'
  
+
+#---------Operatores y delimitadores-----------
+
 t_PLUS      = r'\+'
 t_MINUS     = r'-'
 t_TIMES     = r'\*'
@@ -77,6 +84,22 @@ t_ASSIGN    = r'='
 t_SEMI      = r';'
 t_LPAREN    = r'\('
 t_RPAREN    = r'\)'
+t_COMMA     = r','
+t_LBRACE    = r'\{'
+t_RBRACE    = r'\}'
+
+#----------Operadores lógicos-------
+
+
+t_LT      = r'<'
+t_LE      = r'<='
+t_GT      = r'>'
+t_GE      = r'>='
+t_LAND    = r'&&'
+t_LOR     = r'||'
+t_LNOT    = r'!'
+t_EQ      = r'=='
+t_NE      = r'!='
  
 
 #-----------Simbolos de escape-------------
