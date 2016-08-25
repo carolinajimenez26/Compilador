@@ -112,6 +112,7 @@ def _replace_escape_codes(t):
     t.value = t.value.replace('\\','\u005C')
     t.value = t.value.replace('\\"','\u0022')
     t.value = t.value.replace('\\r','\u000D')
+    t.value = t.value.replace('\\b','\u0062')
     return t
 
 
