@@ -119,12 +119,13 @@ def _replace_escape_codes(t):
 #---------Literales----------
 
 def t_FLOAT(t):
-    r'(([0-9]+\.[0-9]*)|(\.[0-9]+))([eE][-+]?[0-9]+)?'
-    t.value=float(t.value)
+    r'(([0-9]*\.[0-9]+|[0-9]+\.[0-9]*|[0-9]*\.[0-9]*)([eE][+-]?[0-9]+)?)'
+    #r'([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)|([0-9]*[\.]?[0-9]*[eE][+-]?[0-9]+)'
+    t.value = float(t.value)
     return t
 
 def t_INTEGER(t):
-    r'0x[0-9]+[A-F]+|0x[A-F]+[0-9]+|0x[0-9]+[A-F]*|0x[0-9]*[A-F]+|[0-9]+|0[0-7]+'
+    r'0[xX][0-9a-fA-F]+|[0-9]+|0[0-9]*'
     t.value = int(str(t.value),0)
     return t
       
@@ -146,6 +147,7 @@ def t_ID(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
     if t.value.upper() in tokens:
         t.type = t.value.upper()
+    #tener en cuenta que no sean palabras reservadas
     return t
  
 
