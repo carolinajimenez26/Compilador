@@ -1,4 +1,6 @@
 # errors.py
+
+# -*- coding: utf-8 -*-
 '''
 Soporte al manejo de errores del Compilador.
 
