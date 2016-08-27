@@ -14,15 +14,15 @@ from ply.lex import lex
 
 tokens = [
     # keywords
-    'ID', 'CONST', 'VAR', 'PRINT', 'FUNC', 'EXTERN',
+    'ID', 'CONST', 'VAR', 'PRINT', 'FUNC', 'EXTERN', 'RETURN',
  
     # Control de flujo
-    'IF', 'ELSE', 'WHILE', 'FOR',
+    'IF', 'ELSE', 'WHILE',
  
     # Operatores y delimitadores
     'PLUS', 'MINUS', 'TIMES', 'DIVIDE',
     'ASSIGN', 'SEMI', 'LPAREN', 'RPAREN', 'COMMA',
-    'LBRACE', 'RBRACE',
+    'LBRACE', 'RBRACE', 'COLONS', 'LBRACKET', 'RBRACKET',
  
     # Operadores lógicos
     'LT', 'LE', 'GT', 'GE', 'LAND', 'LOR', 'LNOT',
@@ -30,20 +30,49 @@ tokens = [
  
     # Literales
     'INTEGER', 'FLOAT', 'STRING', 'BOOLEAN',
+
+    # AGREGADOS
+    'BREAK', 'DEFAULT', 'INTERFACE', 'SELECT', 'CASE',
+    'DEFER', 'GO', 'MAP', 'STRUCT', 'CHAN', 'GOTO',
+    'PACKAGE', 'SWITCH', 'FALLTHROUGH', 'RANGE', 'TYPE',
+    'CONTINUE', 'FOR', 'IMPORT', 'LDISPLACEMENT', 'RDISPLACEMENT',
+    'AND', 'OR', 'DIFFERENT', 'NOT', 'POSITIVEINCREASE', 'INCREASE',
+    'NEGATIVEINCREASE', 'MULTIPLIINCREASE', 'DIVIDEINCREASE',
+    'LASSIGNMET', 'RASSIGNMET', 'EVADETYPEDECLAR',
 ]
 
 #-----------Palabras reservadas----------
 
 reserved = {
-    'if'    : 'IF',
-    'else'  : 'ELSE',
-    'while' : 'WHILE',
-    'for'   : 'FOR',
-    'var'   : 'VAR',
-    'const' : 'CONST',
-    'func'  : 'FUNC',
-    'extern': 'EXTERN',
-    'print' : 'PRINT',
+    'if'        : 'IF',
+    'else'      : 'ELSE',
+    'while'     : 'WHILE',
+    'var'       : 'VAR',
+    'const'     : 'CONST',
+    'func'      : 'FUNC',
+    'extern'    : 'EXTERN',
+    'print'     : 'PRINT',
+    #--------Nuevos--------
+    'return'    : 'RETURN',
+    'break'     : 'BREAK',  
+    'default'   : 'DEFAULT',
+    'interface' : 'INTERFACE',
+    'select'    : 'SELECT',
+    'case'      : 'CASE',
+    'defer'     : 'DEFER',
+    'go'        : 'GO',
+    'map'       : 'MAP',
+    'struct'    : 'STRUCT',
+    'chan'      : 'CHAN',
+    'goto'      : 'GOTO',
+    'package'   : 'PACKAGE',
+    'switch'    : 'SWITCH',
+    'fallthrough' : 'FALLTHROUGH',
+    'range'     : 'RANGE',
+    'type'      : 'TYPE',
+    'continue'  :'CONTINUE', 
+    'for'       :'FOR', 
+    'import'    :'IMPORT',
 }
  
 #------------Operadores----------
@@ -69,7 +98,26 @@ operators = {
     r'!=' : "NE",       
     r'&&' : "LAND",     
     r'||' : "LOR",      
-    r'!'  : "LNOT",     
+    r'!'  : "LNOT",    
+
+    #--------Nuevos--------
+    r'['  : "LBRACKET",
+    r']'  : "RBRACKET",
+    r':=' : "EVADETYPEDECLAR",
+    r':'  : "COLONS",  
+    r'<<' : "LDISPLACEMENT",
+    r'>>' : "RDISPLACEMENT",
+    r'&'  : "AND",
+    r'|'  : "OR",
+    r'!=' : "DIFFERENT",
+    r'!'  : "NOT",
+    r'+=' : "POSITIVEINCREASE",
+    r'++' : "INCREASE",
+    r'-=' : "NEGATIVEINCREASE",
+    r'*=' : "MULTIPLIINCREASE",
+    r'/=' : "DIVIDEINCREASE",
+    r'<<=': "LASSIGNMET",
+    r'>>=': "RASSIGNMET",
 }
 
 t_ignore = ' \t\r'
@@ -91,7 +139,6 @@ t_RBRACE    = r'\}'
 
 #----------Operadores lógicos-------
 
-
 t_LT      = r'<'
 t_LE      = r'<='
 t_GT      = r'>'
@@ -101,6 +148,25 @@ t_LOR     = r'\|\|'
 t_LNOT    = r'!'
 t_EQ      = r'=='
 t_NE      = r'!='
+
+#----------Nuevos-------
+t_LBRACKET         = r'\['
+t_RBRACKET         = r'\]'
+t_COLONS           = r':'
+t_EVADETYPEDECLAR  = r':='  
+t_LDISPLACEMENT    = r'<<' 
+t_RDISPLACEMENT    = r'>>' 
+t_AND              = r'&'
+t_OR               = r'\|' 
+t_DIFFERENT        = r'!='
+t_NOT              = r'!'
+t_POSITIVEINCREASE = r'\+='
+t_INCREASE         = r'\+\+'
+t_NEGATIVEINCREASE = r'-='
+t_MULTIPLIINCREASE = r'\*='
+t_DIVIDEINCREASE   = r'/=' 
+t_LASSIGNMET       = r'<<='
+t_RASSIGNMET       = r'>>='
  
 
 #-----------Simbolos de escape-------------
@@ -110,39 +176,37 @@ escapes = escapes_not_b + "b"
 def _replace_escape_codes(t):
     t.value = t.value.replace('\\n','\u000A')
     t.value = t.value.replace('\\t','\u0009')
-    t.value = t.value.replace('\\','\u005C')
     t.value = t.value.replace('\\"','\u0022')
     t.value = t.value.replace('\\r','\u000D')
     t.value = t.value.replace('\\b','\u0062')
+    t.value = t.value.replace('\\','\u005C')
     return t
 
 
 #---------Literales----------
 
 def t_FLOAT(t):
-    #|[0-9]+
+
     r'(\d*\.\d+|\d+\.\d*)([eE][-+]?\d+)?|\d+([eE][-+]?\d+)'
-    #r'(([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)([eE][+-]?[0-9]+)?)'
-    #r'([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)|([0-9]*[\.]?[0-9]*[eE][+-]?[0-9]+)'
-    t.value = float(t.value)
+    #r'([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)([eE][+-]?[0-9]+)?'
+    #r'([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)|([0-9]*[\.]?[0-9]*[eE][-+]?[0-9]+)'
+    t.value=float(t.value)
     return t
 
 def t_INTEGER(t):
-    #r'0[xX][0-9a-fA-F]+|0[0-9]*|[0-9]+'
-    r'0[xX][0-9a-fA-F]+|/d+|0[1-7])+'
+    r'0[xX][0-9a-fA-F]+|[\d]+|0[0-7]*'
     t.value = int(str(t.value),0)
-    t.value=int(t.value)
     return t
       
 def t_STRING(t):
-    r'".*"'
+    r'"[^"]*'
     # Convierte t.value dentro de una cadena con códigos de escape reemplazados por valores actuales.
     t.value = t.value[1:-1]
     _replace_escape_codes(t)    # Debe implementarse antes
     return t
  
 def t_BOOLEAN(t):
-    r'True|False' 
+    r'true|false' 
     if t.value.upper() in tokens:
         t.type=t.value.upper()
     return t
@@ -152,7 +216,6 @@ def t_ID(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
     if t.value.upper() in tokens:
         t.type = t.value.upper()
-    #tener en cuenta que no sean palabras reservadas
     return t
  
 
@@ -169,10 +232,6 @@ def t_IF(t):
 def t_WHILE(t):
     r'while'
     return t_WHILE
-
-def t_FOR(t):
-    r'for'
-    return t_FOR
  
 # -----------Ignorar textos especiales-----------
 

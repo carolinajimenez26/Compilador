@@ -1,4 +1,4 @@
-"Hello"  "World" "This is a test"
+"Hello"  "World" "This is a test" select
 
 "Hello world
 
