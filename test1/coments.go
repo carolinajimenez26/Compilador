@@ -12,7 +12,7 @@
 /*||:Dkdsajd*/
 °°||!!
 // \"\
-
+/*/
 /* This is a comment */
 
 foo
@@ -30,4 +30,4 @@ bar
 
 spam
 
-/* A comment with an /* embedded */ comment */
+/* A comment with an /* embedded */ jejje */

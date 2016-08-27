@@ -4,3 +4,7 @@
 3+4
 6+6
 4+integer(5)
+int("4")
+float(3)
+char("ocho")
+FLOAT-10

@@ -29,11 +29,11 @@ tokens = [
     'EQ', 'NE',
 
     # Literales
-    'INTEGER', 'FLOAT', 'STRING', 'BOOLEAN',
+    'INTEGER', 'FLOAT', 'STRING', 'BOOLEAN', 'CHAR',
 
     # AGREGADOS
     'BREAK', 'DEFAULT', 'INTERFACE', 'SELECT', 'CASE',
-    'DEFER', 'GO', 'MAP', 'STRUCT', 'CHAN', 'GOTO',
+    'DEFER', 'GO', 'MAP', 'STRUCT', 'GOTO',
     'PACKAGE', 'SWITCH', 'FALLTHROUGH', 'RANGE', 'TYPE',
     'CONTINUE', 'FOR', 'IMPORT', 'LDISPLACEMENT', 'RDISPLACEMENT',
     'AND', 'OR', 'DIFFERENT', 'NOT', 'POSITIVEINCREASE', 'INCREASE',
@@ -63,7 +63,7 @@ reserved = {
     'go'        : 'GO',
     'map'       : 'MAP',
     'struct'    : 'STRUCT',
-    'chan'      : 'CHAN',
+    'char'      : 'CHAR',
     'goto'      : 'GOTO',
     'package'   : 'PACKAGE',
     'switch'    : 'SWITCH',
@@ -173,15 +173,29 @@ t_RASSIGNMET       = r'>>='
 
 escapes_not_b = r'nrt\"'
 escapes = escapes_not_b + "b"
+"""
 def _replace_escape_codes(t):
+    #print ("t.value : " , t.value)
     t.value = t.value.replace('\\n','\u000A')
     t.value = t.value.replace('\\t','\u0009')
     t.value = t.value.replace('\\"','\u0022')
     t.value = t.value.replace('\\r','\u000D')
     t.value = t.value.replace('\\b','\u0062')
     t.value = t.value.replace('\\','\u005C')
+    #print ("t.value : " , t.value)
+    return t 
+"""
+def _replace_escape_codes(t):
+    x = t.value
+    if(x == "\\"):
+        t.value=t.value.replace('\\','\u005C')
+    else:
+        t.value=t.value.replace('\\n','\u000A')
+        t.value=t.value.replace('\\r','\u000D')
+        t.value=t.value.replace('\\t','\u0009')
+        t.value=t.value.replace('\\\"','\u0022')
+        t.value=t.value.replace('\\b','\u0062')#ER
     return t
-
 
 #---------Literales----------
 
@@ -203,8 +217,9 @@ def t_INTEGER(t):
     return t
 
 def t_STRING(t):
-	#r'".*"'
-    r'"[^"]*'
+    #r'".*"'
+    #r'"[^"]*"'
+    r'"([^"](\\")?)*"'
     # Convierte t.value dentro de una cadena con códigos de escape reemplazados por valores actuales.
     t.value = t.value[1:-1]
     _replace_escape_codes(t)    # Debe implementarse antes
