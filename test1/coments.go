@@ -1,18 +1,3 @@
-#Esto es un comentario
-#Esto también es comentario #
-/**/
-/*****/
-/*""*/
-/*//*/
-/*\"*/
-/*
-/
-//Hallo
-/*Comentariesito*/
-/*||:Dkdsajd*/
-°°||!!
-// \"\
-/*/
 /* This is a comment */
 
 foo

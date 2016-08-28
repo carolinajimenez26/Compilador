@@ -30,8 +30,6 @@ tokens = [
 
     # Literales
     'INTEGER', 'FLOAT', 'STRING', 'BOOLEAN', 'CHAR',
-
-    # AGREGADOS
     'BREAK', 'DEFAULT', 'INTERFACE', 'SELECT', 'CASE',
     'DEFER', 'GO', 'MAP', 'STRUCT', 'GOTO',
     'PACKAGE', 'SWITCH', 'FALLTHROUGH', 'RANGE', 'TYPE',
@@ -52,7 +50,6 @@ reserved = {
     'func'      : 'FUNC',
     'extern'    : 'EXTERN',
     'print'     : 'PRINT',
-    #--------Nuevos--------
     'return'    : 'RETURN',
     'break'     : 'BREAK',
     'default'   : 'DEFAULT',
@@ -100,7 +97,6 @@ operators = {
     r'||' : "LOR",
     r'!'  : "LNOT",
 
-    #--------Nuevos--------
     r'['  : "LBRACKET",
     r']'  : "RBRACKET",
     r':=' : "EVADETYPEDECLAR",
@@ -183,7 +179,7 @@ def _replace_escape_codes(t):
     t.value = t.value.replace('\\b','\u0062')
     t.value = t.value.replace('\\','\u005C')
     #print ("t.value : " , t.value)
-    return t 
+    return t
 """
 def _replace_escape_codes(t):
     x = t.value

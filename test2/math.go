@@ -1,0 +1,25 @@
+4+numero
+5+"alejo"
+1+2
+3+4
+6+6
+4+integer(5)
+int("4")
+float(3)
+char("ocho")
+FLOAT-10
+85*96
+5.2*9
+4*5.36
+"number"*"decimal"
+"no"*1+"hola mundo"
+"True"
+false
+True
+sin(2)
+sin("theta")
+sin2
+8/8
+8.2/"numero"
+"decimal"/8e10
+8/3
