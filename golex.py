@@ -169,7 +169,7 @@ t_RASSIGNMET       = r'>>='
 
 escapes_not_b = r'nrt\"'
 escapes = escapes_not_b + "b"
-"""
+
 def _replace_escape_codes(t):
     #print ("t.value : " , t.value)
     t.value = t.value.replace('\\n','\u000A')
@@ -180,54 +180,75 @@ def _replace_escape_codes(t):
     t.value = t.value.replace('\\','\u005C')
     #print ("t.value : " , t.value)
     return t
-"""
-def _replace_escape_codes(t):
-    x = t.value
-    if(x == "\\"):
-        t.value=t.value.replace('\\','\u005C')
-    else:
-        t.value=t.value.replace('\\n','\u000A')
-        t.value=t.value.replace('\\r','\u000D')
-        t.value=t.value.replace('\\t','\u0009')
-        t.value=t.value.replace('\\\"','\u0022')
-        t.value=t.value.replace('\\b','\u0062')#ER
-    return t
+
+def _replace_escape_codes2(t):
+    #print ("t.value : " , t.value)
+    s = ""
+    size = len(t.value)
+    cont = 0
+    flag = False # ignora el que sigue para que no lo agregue a s
+    for i in range (0,size):
+        print ("t[i] : " , t.value[i])
+        if (t.value[i] == "\\" and cont < size - 1):
+            print("entro : ", t.value[i])
+            print("s : " , s)
+            if (str(t.value[i+1]) == "n"):
+                s += "\u000A"
+                flag = True
+            elif (t.value[i+1] == "t"):
+                s += "\u0009"
+                flag = True
+            elif (t.value[i+1] == "\""):
+                print("entro2 : ", t.value[i+1])
+                s += "\u0022"
+                print("s : " , s)
+                flag = True
+            elif (t.value[i+1] == "r"):
+                s += "\u000D"
+                flag = True
+            elif (t.value[i+1] == "b"):
+                s += "\u0062"
+                flag = True
+            elif(t.value[i+1] == "\\"):
+                s += "\u005C"
+                flag = True
+        else:
+            if (not flag):
+                s += str(i)
+                flag = False
+
+    print ("new : " , s)
+    return s
 
 #---------Literales----------
 
 def t_FLOAT(t):
-
     r'(\d*\.\d+|\d+\.\d*)([eE][-+]?\d+)?|\d+([eE][-+]?\d+)'
-    #r'([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)([eE][+-]?[0-9]+)?'
-    #r'([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)|([0-9]*[\.]?[0-9]*[eE][-+]?[0-9]+)'
-    t.value=float(t.value)
+    t.value = float(t.value)
     return t
 
 def t_INTEGER(t):
-	#r'0[xX][0-9a-fA-F]+|/d+|0[1-7])+'
-	#r'0[xX][0-9a-fA-F]+|0[0-9]*|[0-9]+'
     r'0[xX][0-9a-fA-F]+|[\d]+|0[0-7]*'
-	#t.value = int(str(t.value),0)
-    #t.value = int(t.value)
     t.value = int(str(t.value),0)
     return t
 
 def t_STRING(t):
     #r'".*"'
-    #r'"[^"]*"'
-    r'"([^"](\\")?)*"'
-    # Convierte t.value dentro de una cadena con códigos de escape reemplazados por valores actuales.
+    r'"[^"]*"'
+    #print("string1 : " , t.value)
     t.value = t.value[1:-1]
-    _replace_escape_codes(t)    # Debe implementarse antes
+    _replace_escape_codes(t)
+    #print("string2 : " , t.value)
     return t
 
 def t_BOOLEAN(t):
     r'true|false'
     if t.value.upper() in tokens:
-        t.type=t.value.upper()
+        t.type = t.value.upper()
     return t
 
 #----------keywords-----------
+
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
     if t.value.upper() in tokens:
@@ -235,8 +256,7 @@ def t_ID(t):
 	#tener en cuenta que no sean palabras reservadas
     return t
 
-
- #---------Control de flujo---------
+#---------Control de flujo---------
 
 def t_ELSE(t):
     r'else'
