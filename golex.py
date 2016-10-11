@@ -1,5 +1,6 @@
 # golex.py
 # -*- coding: utf-8 -*-
+
 """
 Compilador léxico
 Profesor: Angel Augusto Zapata
@@ -14,67 +15,50 @@ from ply.lex import lex
 
 tokens = [
     # keywords
-    'ID', 'CONST', 'VAR', 'PRINT', 'FUNC', 'EXTERN', 'RETURN',
+    'ID', 'CONST', 'VAR', 'PRINT', 'FUNC', 'EXTERN',
 
     # Control de flujo
-    'IF', 'ELSE', 'WHILE',
+    'IF', 'ELSE', 'WHILE', 'FOR', 'SWITCH', 'CASE', 'RETURN', 'DEFAULT',
 
     # Operatores y delimitadores
-    'PLUS', 'MINUS', 'TIMES', 'DIVIDE',
-    'ASSIGN', 'SEMI', 'LPAREN', 'RPAREN', 'COMMA',
-    'LBRACE', 'RBRACE', 'COLONS', 'LBRACKET', 'RBRACKET',
+    'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'ASSIGN', 'SEMI', 'RESIDUE',
+    'LPAREN', 'RPAREN', 'COMMA', 'LBRACE', 'RBRACE', 'COLONS',
+    'LBRACKET', 'RBRACKET', 'INCREASE', 'POSITIVEINCREASE',
+    'NEGATIVEINCREASE', 'DECREMENT','MULTIPLIINCREASE', 'DIVIDEINCREASE',
+    'EVADETYPEDECLAR',
 
     # Operadores lógicos
     'LT', 'LE', 'GT', 'GE', 'LAND', 'LOR', 'LNOT',
-    'EQ', 'NE',
+    'EQ', 'NE', 'OR', 'AND',
 
     # Literales
-    'INTEGER', 'FLOAT', 'STRING', 'BOOLEAN', 'CHAR',
-    'BREAK', 'DEFAULT', 'INTERFACE', 'SELECT', 'CASE',
-    'DEFER', 'GO', 'MAP', 'STRUCT', 'GOTO',
-    'PACKAGE', 'SWITCH', 'FALLTHROUGH', 'RANGE', 'TYPE',
-    'CONTINUE', 'FOR', 'IMPORT', 'LDISPLACEMENT', 'RDISPLACEMENT',
-    'AND', 'OR', 'DIFFERENT', 'NOT', 'POSITIVEINCREASE', 'INCREASE',
-    'NEGATIVEINCREASE', 'MULTIPLIINCREASE', 'DIVIDEINCREASE',
-    'LASSIGNMET', 'RASSIGNMET', 'EVADETYPEDECLAR',
+    'INT', 'FLOAT', 'STRING', 'BOOLEAN',
 ]
 
-#-----------Palabras reservadas----------
-
+# ----------------------------------------------------------------------
+#                          PALABRAS RESERVADAS
+# ----------------------------------------------------------------------
 reserved = {
-    'if'        : 'IF',
-    'else'      : 'ELSE',
-    'while'     : 'WHILE',
-    'var'       : 'VAR',
-    'const'     : 'CONST',
-    'func'      : 'FUNC',
-    'extern'    : 'EXTERN',
-    'print'     : 'PRINT',
-    'return'    : 'RETURN',
-    'break'     : 'BREAK',
-    'default'   : 'DEFAULT',
-    'interface' : 'INTERFACE',
-    'select'    : 'SELECT',
-    'case'      : 'CASE',
-    'defer'     : 'DEFER',
-    'go'        : 'GO',
-    'map'       : 'MAP',
-    'struct'    : 'STRUCT',
-    'char'      : 'CHAR',
-    'goto'      : 'GOTO',
-    'package'   : 'PACKAGE',
-    'switch'    : 'SWITCH',
-    'fallthrough' : 'FALLTHROUGH',
-    'range'     : 'RANGE',
-    'type'      : 'TYPE',
-    'continue'  :'CONTINUE',
-    'for'       :'FOR',
-    'import'    :'IMPORT',
+    'string'      : 'STRING',
+    'if'          : 'IF',
+    'else'        : 'ELSE',
+    'while'       : 'WHILE',
+    'var'         : 'VAR',
+    'const'       : 'CONST',
+    'func'        : 'FUNC',
+    'extern'      : 'EXTERN',
+    'print'       : 'PRINT',
+    'default'     : 'DEFAULT',
+    'case'        : 'CASE',
+    'switch'      : 'SWITCH',
+    'return'      : 'RETURN',
+    'for'         : 'FOR',
 }
 
-#------------Operadores----------
+# ----------------------------------------------------------------------
+#                               OPERADORES
+# ----------------------------------------------------------------------
 operators = {
-
     r'+'  : "PLUS",
     r'-'  : "MINUS",
     r'*'  : "TIMES",
@@ -86,6 +70,7 @@ operators = {
     r','  : "COMMA",
     r'{'  : "LBRACE",
     r'}'  : "RBRACE",
+    r'%'  : "RESIDUE",
 
     r'<'  : "LT",
     r'<=' : "LE",
@@ -101,26 +86,21 @@ operators = {
     r']'  : "RBRACKET",
     r':=' : "EVADETYPEDECLAR",
     r':'  : "COLONS",
-    r'<<' : "LDISPLACEMENT",
-    r'>>' : "RDISPLACEMENT",
     r'&'  : "AND",
     r'|'  : "OR",
-    r'!=' : "DIFFERENT",
-    r'!'  : "NOT",
     r'+=' : "POSITIVEINCREASE",
     r'++' : "INCREASE",
+	r'--' : "DECREASE",
     r'-=' : "NEGATIVEINCREASE",
     r'*=' : "MULTIPLIINCREASE",
     r'/=' : "DIVIDEINCREASE",
-    r'<<=': "LASSIGNMET",
-    r'>>=': "RASSIGNMET",
 }
 
 t_ignore = ' \t\r'
 
-
-#---------Operatores y delimitadores-----------
-
+# ----------------------------------------------------------------------
+#                       OPERATORES Y DELIMITADORES
+# ----------------------------------------------------------------------
 t_PLUS      = r'\+'
 t_MINUS     = r'-'
 t_TIMES     = r'\*'
@@ -133,112 +113,69 @@ t_COMMA     = r','
 t_LBRACE    = r'\{'
 t_RBRACE    = r'\}'
 
-#----------Operadores lógicos-------
-
+# ----------------------------------------------------------------------
+#                           OPERADORES LOGICOS
+# ----------------------------------------------------------------------
 t_LT      = r'<'
 t_LE      = r'<='
 t_GT      = r'>'
 t_GE      = r'>='
-t_LAND    = r'&&'
+t_LAND    = r'\&\&'
 t_LOR     = r'\|\|'
 t_LNOT    = r'!'
 t_EQ      = r'=='
 t_NE      = r'!='
 
-#----------Nuevos-------
+# ----------------------------------------------------------------------
+#                                 NUEVOS
+# ----------------------------------------------------------------------
+t_RESIDUE          = r'%'
 t_LBRACKET         = r'\['
 t_RBRACKET         = r'\]'
 t_COLONS           = r':'
 t_EVADETYPEDECLAR  = r':='
-t_LDISPLACEMENT    = r'<<'
-t_RDISPLACEMENT    = r'>>'
-t_AND              = r'&'
+t_AND              = r'\&'
 t_OR               = r'\|'
-t_DIFFERENT        = r'!='
-t_NOT              = r'!'
 t_POSITIVEINCREASE = r'\+='
-t_INCREASE         = r'\+\+'
 t_NEGATIVEINCREASE = r'-='
 t_MULTIPLIINCREASE = r'\*='
 t_DIVIDEINCREASE   = r'/='
-t_LASSIGNMET       = r'<<='
-t_RASSIGNMET       = r'>>='
+t_INCREASE         = r'\+\+'
+t_DECREMENT        = r'--'
 
-
-#-----------Simbolos de escape-------------
-
+# ----------------------------------------------------------------------
+#                           SIMBOLOS DE ESCAPE
+# ----------------------------------------------------------------------
 escapes_not_b = r'nrt\"'
 escapes = escapes_not_b + "b"
 
 def _replace_escape_codes(t):
-    #print ("t.value : " , t.value)
     t.value = t.value.replace('\\n','\u000A')
     t.value = t.value.replace('\\t','\u0009')
     t.value = t.value.replace('\\"','\u0022')
     t.value = t.value.replace('\\r','\u000D')
     t.value = t.value.replace('\\b','\u0062')
     t.value = t.value.replace('\\','\u005C')
-    #print ("t.value : " , t.value)
     return t
 
-def _replace_escape_codes2(t):
-    #print ("t.value : " , t.value)
-    s = ""
-    size = len(t.value)
-    cont = 0
-    flag = False # ignora el que sigue para que no lo agregue a s
-    for i in range (0,size):
-        print ("t[i] : " , t.value[i])
-        if (t.value[i] == "\\" and cont < size - 1):
-            print("entro : ", t.value[i])
-            print("s : " , s)
-            if (str(t.value[i+1]) == "n"):
-                s += "\u000A"
-                flag = True
-            elif (t.value[i+1] == "t"):
-                s += "\u0009"
-                flag = True
-            elif (t.value[i+1] == "\""):
-                print("entro2 : ", t.value[i+1])
-                s += "\u0022"
-                print("s : " , s)
-                flag = True
-            elif (t.value[i+1] == "r"):
-                s += "\u000D"
-                flag = True
-            elif (t.value[i+1] == "b"):
-                s += "\u0062"
-                flag = True
-            elif(t.value[i+1] == "\\"):
-                s += "\u005C"
-                flag = True
-        else:
-            if (not flag):
-                s += str(i)
-                flag = False
-
-    print ("new : " , s)
-    return s
-
-#---------Literales----------
-
+# ----------------------------------------------------------------------
+#                               LITERALES
+# ----------------------------------------------------------------------
 def t_FLOAT(t):
     r'(\d*\.\d+|\d+\.\d*)([eE][-+]?\d+)?|\d+([eE][-+]?\d+)'
     t.value = float(t.value)
     return t
 
-def t_INTEGER(t):
+def t_INT(t):
     r'0[xX][0-9a-fA-F]+|[\d]+|0[0-7]*'
     t.value = int(str(t.value),0)
     return t
 
 def t_STRING(t):
-    #r'".*"'
-    r'"[^"]*"'
-    #print("string1 : " , t.value)
+    #r'"[^"]*"'
+    r'"([^"](\\")?)*"'
     t.value = t.value[1:-1]
     _replace_escape_codes(t)
-    #print("string2 : " , t.value)
     return t
 
 def t_BOOLEAN(t):
@@ -247,31 +184,19 @@ def t_BOOLEAN(t):
         t.type = t.value.upper()
     return t
 
-#----------keywords-----------
-
+# ----------------------------------------------------------------------
+#                                KEYWORDS
+# ----------------------------------------------------------------------
+#Tener en cuenta que no sean palabras reservadas
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
     if t.value.upper() in tokens:
         t.type = t.value.upper()
-	#tener en cuenta que no sean palabras reservadas
     return t
 
-#---------Control de flujo---------
-
-def t_ELSE(t):
-    r'else'
-    return t_ELSE
-
-def t_IF(t):
-    r'if'
-    return t_IF
-
-def t_WHILE(t):
-    r'while'
-    return t_WHILE
-
-# -----------Ignorar textos especiales-----------
-
+# ----------------------------------------------------------------------
+#                           TEXTOS ESPECIALES
+# ----------------------------------------------------------------------
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
@@ -286,7 +211,9 @@ def t_CPPCOMMENT(t):
     r'//.*\n'
     t.lexer.lineno += 1
 
-# -------------Caracteres ilegales-----------------
+# ----------------------------------------------------------------------
+#                          CARACTERES ILEGALES
+# ----------------------------------------------------------------------
 def t_error(t):
     error(t.lexer.lineno,"Illegal character %r" % t.value[0])
     t.lexer.skip(1)
@@ -319,7 +246,6 @@ if __name__ == '__main__':
     if len(sys.argv) != 2:
         sys.stderr.write("Usage: %s filename\n" % sys.argv[0])
         raise SystemExit(1)
-
 
     lexer = make_lexer()
     with subscribe_errors(lambda msg: sys.stderr.write(msg+"\n")):
