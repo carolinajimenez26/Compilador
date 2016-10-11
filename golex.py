@@ -243,12 +243,22 @@ if __name__ == '__main__':
     import sys
     from errors import subscribe_errors
 
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: %s filename\n" % sys.argv[0])
-        raise SystemExit(1)
+    lexer = make_lexer()
 
+<<<<<<< HEAD
     lexer = make_lexer()
     with subscribe_errors(lambda msg: sys.stderr.write(msg+"\n")):
         lexer.input(open(sys.argv[1]).read())
         for tok in iter(lexer.token,None):
             sys.stdout.write("%s\n" % tok)
+=======
+    data = 'a = 3 + 4 * 10'
+
+    lexer.input(data)
+
+    while True:
+        tok = lexer.token()
+        if not tok :
+            break
+        print(tok)
+>>>>>>> 40c2e000344463582f5813d53565288c4e532490

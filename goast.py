@@ -1,1 +1,412 @@
-# goast.py# -*- coding: utf-8 -*-import pydot # https://pypi.python.org/pypi/pydotplus'''Objetos Arbol de Sintaxis Abstracto (AST - Abstract Syntax Tree).Este archivo define las clases para los diferentes tipos de nodos delárbol de sintaxis abstracto.  Durante el análisis sintático, se debecrear estos nodos y conectarlos.  En general, usted tendrá diferentesnodos AST para cada tipo de regla gramatical.  Algunos ejemplos denodos AST pueden ser encontrados al comienzo del archivo.  Usted deberáañadir más.'''# NO MODIFICARclass AST(object):    '''    Clase base para todos los nodos del AST.  Cada nodo se espera    definir el atributo _fields el cual enumera los nombres de los    atributos almacenados.  El método a continuación __init__() toma    argumentos posicionales y los asigna a los campos apropiados.    Cualquier argumento adicional especificado como keywords son    también asignados.    '''    _fields = []    # recibe argumentos (vector) y argumentos adicionales (diccionario)    def __init__(self,*args,**kwargs):        flag = False        # si no le envió argumentos        assert len(args) == len(self._fields)        for name,value in zip(self._fields,args):            setattr(self,name,value)        # asigna los atributos adicionales del diccionario kwargs        for name,value in kwargs.items():            setattr(self,name,value)            if (name == "isLeaf"):                flag = True        setattr(self,"isLeaf",flag)    def pprint(self):        for depth, node in flatten(self):            print("%s%s" % (" "*(4*depth),node))    def show_graph(self,path):        dot = DotVisitor()        dot.visit(self)        dot.graph.write_png(path)def validate_fields(**fields):    def validator(cls):        old_init = cls.__init__        def __init__(self, *args, **kwargs):            old_init(self, *args, **kwargs)            for field,expected_type in fields.items():                assert isinstance(getattr(self, field), expected_type)        cls.__init__ = __init__        return cls    return validator# ----------------------------------------------------------------------# Nodos AST especificos## Para cada nodo es necesario definir una clase y añadir la especificación# del apropiado _fields = [] que indique que campos deben ser almacenados.# A modo de ejemplo, para un operador binario es posible almacenar el# operador, la expresión izquierda y derecha, como esto:##    class Binop(AST):#        _fields = ['op','left','right']# ----------------------------------------------------------------------# Unos pocos nodos ejemplosclass PrintStatement(AST):    '''    print expression ;    '''    _fields = ['expr']class Literal(AST):    '''    Un valor constante como 2, 2.5, o "dos"    '''    _fields = ['value']class Program(AST):    _fields = ['program']@validate_fields(statements=list)class Statements(AST):    _fields = ['statements']    def append(self,e):        self.statements.append(e)class Statement(AST):    _fields = ['statement']class Extern(AST):    _fields = ['func_prototype']class FuncPrototype(AST):    _fields = ['id', 'params', 'typename']@validate_fields(param_decls=list)class Parameters(AST):    _fields = ['param_decls']    def append(self,e):        self.param_decls.append(e)class ParamDecl(AST):    _fields = ['id', 'typename']class AssignmentStatement(AST):    _fields = ['location', 'value']class ConstDeclaration(AST):    _fields = ['id', 'value']class VarDeclaration(AST):    _fields = ['id', 'typename', 'value']class IfStatement(AST):    _fields = ['condition', 'then_b', 'else_b']class WhileStatement(AST):    _fields = ['condition', 'body']class LoadLocation(AST):    _fields = ['name']class StoreVar(AST):    _fields = ['name']class UnaryOp(AST):    _fields = ['op', 'left']class BinaryOp(AST):    _fields = ['op', 'left', 'right']class RelationalOp(AST):    _fields = ['op', 'left', 'right']class Group(AST):    _fields = ['expression']class FunCall(AST):    _fields = ['id', 'params']class ExprList(AST):    _fields = ['expressions']    def append(self, e):        self.expressions.append(e)class Empty(AST):    _fields = []# Agregadosclass TypeName(AST):    _fields = ['typename']class Return(AST):    _fields = ['expression']class Location(AST):    _fields = ['location']# Usted deberá añadir mas nodos aquí.  Algunos nodos sugeridos son# BinaryOperator, UnaryOperator, ConstDeclaration, VarDeclaration,# AssignmentStatement, etc...# ----------------------------------------------------------------------#                  NO MODIFIQUE NADA AQUI ABAJO# ----------------------------------------------------------------------# Las clase siguientes para visitar y reescribir el AST son tomadas# desde el módulo ast de python .# NO MODIFIQUEclass NodeVisitor(object):    '''    Clase para visitar nodos del árbol de sintaxis.  Se modeló a partir    de una clase similar en la librería estándar ast.NodeVisitor.  Para    cada nodo, el método visit(node) llama un método visit_NodeName(node)    el cual debe ser implementado en la subclase.  El método genérico    generic_visit() es llamado para todos los nodos donde no hay coincidencia    con el método visit_NodeName().    Es es un ejemplo de un visitante que examina operadores binarios:        class VisitOps(NodeVisitor):            visit_Binop(self,node):                print("Operador binario", node.op)                self.visit(node.left)                self.visit(node.right)            visit_Unaryop(self,node):                print("Operador unario", node.op)                self.visit(node.expr)        tree = parse(txt)        VisitOps().visit(tree)    '''    def visit(self,node):        '''        Ejecuta un método de la forma visit_NodeName(node) donde        NodeName es el nombre de la clase de un nodo particular.        '''        if node:            method = 'visit_' + node.__class__.__name__            # visitor es el metodo que visita el nodo, primero pregunta            # si el nodo ya tiene este metodo, para asignarlo a visitor,            # si no, entonces le asigna el metodo generic_visit            visitor = getattr(self, method, self.generic_visit)            return visitor(node)            # retorna el llamado a la funcion que visita el nodo        else:            return None    def generic_visit(self,node):        '''        Método ejecutado si no se encuentra médodo aplicable visit_.        Este examina el nodo para ver si tiene _fields, es una lista,        o puede ser recorrido completamente.        '''        for field in getattr(node,"_fields"):            value = getattr(node,field,None)            if isinstance(value, list): # si value es una lista                for item in value: # recorremos los elementos de la lista                    if isinstance(item,AST): # si el item es un AST                        self.visit(item) # lo debemos visitar            elif isinstance(value, AST): # si value es un AST                self.visit(value) # debemos recorrerloclass DotVisitor(): # para crear el grafo con graphviz    def __init__(self):        self.graph = pydot.Dot(graph_type = 'graph')        #self.graph = pydot.Dot("AST", graph_type = 'digraph') # grafo dirigido        self.id = 0    def name_node(self):        self.id += 1        return 'n%02d' % self.id    def visit(self, node):        if node:            if (node.isLeaf):                parent_node = self.visit_leaf(node)            else:                method = 'visit_' + node.__class__.__name__                visitor = getattr(self, method, self.visit_non_leaf)                parent_node = visitor(node)        self.graph.add_node(parent_node)        return parent_node    def visit_leaf(self, node):        node_id = "%s %s"% (self.name_node, node.__class__.__name__)        return pydot.Node(node_id, shape='box', style="filled", fillcolor="green")    def visit_non_leaf(self,node):        node_id = "%s %s"% (self.name_node, node.__class__.__name__)        parent_node = pydot.Node(node_id, style="filled", fillcolor="blue")        for field in getattr(node,"_fields"):            value = getattr(node,field,None)            if isinstance(value,list):                for item in value:                    if isinstance(item,AST):                        child_node = self.visit(item)                        self.graph.add_edge(pydot.Edge(parent_node, child_node))            elif isinstance(value,AST):                child_node = self.visit(value)                self.graph.add_edge(pydot.Edge(parent_node, child_node))        return parent_node# NO MODIFICARclass NodeTransformer(NodeVisitor):    '''    Clase que permite que los nodos del arbol de sintraxis sean    reemplazados/reescritos.  Esto es determinado por el valor retornado    de varias funciones visit_().  Si el valor retornado es None, un    nodo es borrado. Si se retorna otro valor, reemplaza el nodo    original.    El uso principal de esta clase es en el código que deseamos aplicar    transformaciones al arbol de sintaxis.  Por ejemplo, ciertas optimizaciones    del compilador o ciertas reescrituras de pasos anteriores a la generación    de código.    '''    def generic_visit(self,node):        for field in getattr(node,"_fields"):            value = getattr(node,field,None)            if isinstance(value,list):                newvalues = []                for item in value:                    if isinstance(item,AST):                        newnode = self.visit(item)                        if newnode is not None:                            newvalues.append(newnode)                    else:                        newvalues.append(n)                value[:] = newvalues            elif isinstance(value,AST):                newnode = self.visit(value)                if newnode is None:                    delattr(node,field)                else:                    setattr(node,field,newnode)        return node# NO MODIFICARdef flatten(top):    '''    Aplana el arbol de sintaxis dentro de una lista para efectos    de depuración y pruebas.  Este retorna una lista de tuplas de    la forma (depth, node) donde depth es un entero representando    la profundidad del arból de sintaxis y node es un node AST    asociado.    '''    class Flattener(NodeVisitor): # hereda de NodeVisitor        def __init__(self):            self.depth = 0            self.nodes = []        def generic_visit(self,node):            self.nodes.append((self.depth,node))            self.depth += 1            NodeVisitor.generic_visit(self,node)            self.depth -= 1    d = Flattener()    d.visit(top)    return d.nodes
+# coding: utf-8
+
+import pydotplus
+
+# ---------------------------------------------------------
+# Nodos del Arbol de Sintaxis Abstracto
+class AST:
+    '''
+    Clase base. No se usará directamente
+    '''
+    _fields = []
+    def __init__(self, *args, **kwargs):
+        flag = False
+        assert len(args) == len(self._fields)
+        for name, value in zip(self._fields, args):
+            setattr(self, name, value)
+        # Asigna argumentos adicionales si son entregados
+        for name, value in kwargs.items():
+            setattr(self, name, value)
+            if (name == "isLeaf"):
+                flag = True
+
+        setattr(self,"isLeaf",flag)
+
+def validate_fields(**fields):
+    def validator(cls):
+        old_init = cls.__init__
+        def __init__(self, *args, **kwargs):
+            old_init(self, *args, **kwargs)
+            for field,expected_type in fields.items():
+                assert isinstance(getattr(self, field), expected_type)
+        cls.__init__ = __init__
+        return cls
+    return validator
+
+
+class PrintStatement(AST):
+    '''
+    print expression ;
+    '''
+    _fields = ['expr']
+
+    def __repr__(self):
+        return '%r' % self.expr
+
+class Literal(AST):
+    '''
+    Un valor constante como 2, 2.5, o "dos"
+    '''
+    _fields = ['value']
+
+    def __repr__(self):
+        return '%r' % self.value
+
+class Program(AST):
+    _fields = ['program']
+
+    def __repr__(self):
+        return ''
+
+@validate_fields(statements=list)
+class Statements(AST):
+    _fields = ['statements']
+
+    def append(self,e):
+        self.statements.append(e)
+
+    def __repr__(self):
+        #return '(%r)' % self.statements
+        return ""
+
+class Statement(AST):
+    _fields = ['statement']
+
+    def __repr__(self):
+        #return '%r' % self.statement
+        return ""
+
+class Extern(AST):
+    _fields = ['func_prototype']
+
+    def __repr__(self):
+        return ''
+
+class FuncPrototype(AST):
+    _fields = ['id', 'params', 'typename', 'body']
+
+    def __repr__(self):
+        return '%r' % self.id
+
+@validate_fields(param_decls=list)
+class Parameters(AST):
+    _fields = ['param_decls']
+
+    def append(self,e):
+        self.param_decls.append(e)
+
+    def __repr__(self):
+        return ''
+
+class ParamDecl(AST):
+    _fields = ['id', 'typename']
+
+    def __repr__(self):
+        return '%r' % self.id
+
+class AssignmentStatement(AST):
+    _fields = ['location', 'value']
+
+    def __repr__(self):
+        return '%r' % self.location
+
+class ConstDeclaration(AST):
+    _fields = ['id', 'value']
+
+    def __repr__(self):
+        return '%r' % self.id
+
+class VarDeclaration(AST):
+    _fields = ['id', 'typename', 'value']
+
+    def __repr__(self):
+        return '%r' % self.id
+
+class IfStatement(AST):
+    _fields = ['condition', 'then_b', 'else_b']
+
+    def __repr__(self):
+        return ''
+
+class WhileStatement(AST):
+    _fields = ['condition', 'body']
+
+    def __repr__(self):
+        return '%r' % self.condition
+
+class LoadLocation(AST):
+    _fields = ['name']
+
+    def __repr__(self):
+        return '%r' % self.name
+
+class StoreVar(AST):
+    _fields = ['name']
+
+    def __repr__(self):
+        return '%r' % self.name
+
+class UnaryOp(AST):
+    _fields = ['op', 'left']
+
+    def __repr__(self):
+        return '%r' % self.op
+
+class BinaryOp(AST):
+    _fields = ['op', 'left', 'right']
+
+    def __repr__(self):
+        return '%r' % self.op
+
+class RelationalOp(AST):
+    _fields = ['op', 'left', 'right']
+
+    def __repr__(self):
+        return '%r' % self.op
+
+class Group(AST):
+    _fields = ['expression']
+
+    def __repr__(self):
+        return '%r' % self.expression
+
+class FunCall(AST):
+    _fields = ['id', 'params']
+
+    def __repr__(self):
+        return '%r' % self.id,self.params
+
+class ExprList(AST):
+    _fields = ['expressions']
+
+    def append(self, e):
+        self.expressions.append(e)
+
+    def __repr__(self):
+        return '%r' % self.expressions
+
+class Empty(AST):
+    _fields = []
+
+    def __repr__(self):
+        return ''
+
+
+# Agregados
+
+class TypeName(AST):
+    _fields = ['typename']
+
+    def __repr__(self):
+        return '%r' % self.typename
+
+class Return(AST):
+    _fields = ['expression']
+
+    def __repr__(self):
+        return '%r' % self.expression
+
+class Location(AST):
+    _fields = ['location']
+
+    def __repr__(self):
+        return '%r' % self.location
+
+class Opper(AST):
+    '''operacion de el estillo var++ var-- '''
+    _fields = ['ID', 'op']
+
+    def __repr__(self):
+        return '%r' % self.op
+
+class SwitchStatement(AST):
+    _fields = ['condition', 'body']
+
+    def __repr__(self):
+        return '%r' % self.condition
+
+class CaseStatement(AST):
+    _fields = ['value', 'body', 'else']
+
+    def __repr__(self):
+        return '%r' % self.value
+
+class ForStatement(AST):
+    _fields = ['condition', 'statement', 'expression', 'body']
+
+    def __repr__(self):
+        return '%r' % self.condition
+
+# ---------------------------------------------------------
+# Patron Visitor
+class NodeVisitor:
+    '''
+    Clase para visitar nodos en el AST
+    '''
+
+    def createGraph(self):
+        self.graph = pydotplus.Dot("AST", graph_type = 'digraph') # grafo dirigido
+        self.id = 0
+
+    def name_node(self):
+        self.id += 1
+        return 'n%02d' % self.id
+
+    def visit(self, node):
+        print ("---visit---")
+        '''
+        Ejecuta un metodo de la forma visit_NodeName(node) donde
+        NodeName es el nombre de la clase de un nodo en particular
+        '''
+        if node:
+            print ("node : ", node)
+            #method = 'visit_' + node.__class__.__name__
+            #visitor = getattr(self, method, self.generic_visit)
+            #return visitor(node)
+            parent_node = self.generic_visit(node)
+            print ("parent_node : ", parent_node)
+            if parent_node:
+                self.graph.add_node(parent_node)
+
+                return parent_node
+
+        else:
+            print ("there is not node")
+            return None
+
+    def generic_visit(self, node):
+        print ("---generic_visit---")
+        '''
+        Metodo ejecutado si no es aplicable visit_method.
+        '''
+
+        node_id = "%s %s %s"% (self.name_node(),node.__class__.__name__,node.__repr__())
+        parent_node = pydotplus.Node(node_id, style="filled", fillcolor="#55B7C2")
+        print ("parent_node : ", parent_node)
+        print ("parent_node id :", node_id)
+
+        for field in getattr(node, '_fields'):
+
+            value = getattr(node, field, None)
+            if isinstance(value, list):
+                for item in value:
+                    if isinstance(item, AST):
+                        #self.visit(item)
+                        child_node = self.visit(item)
+                        if child_node:
+                            self.graph.add_edge(pydotplus.Edge(parent_node, child_node))
+
+            elif isinstance(value, AST):
+                #self.visit(value)
+                child_node = self.visit(value)
+                if child_node:
+                    self.graph.add_edge(pydotplus.Edge(parent_node, child_node))
+
+        return parent_node
+
+    def printGraph(self,path):
+        self.graph.write_png(path)
+
+
+class DotVisitor(): # para crear el grafo con graphviz
+
+    #excluidos = ["FunCall","BinaryOp","FuncPrototype","RelationalOp"]
+    excluidos = ["Statements","Statement","ExprList"]
+
+    def __init__(self):
+        self.graph = pydotplus.Dot("AST", graph_type = 'digraph') # grafo dirigido
+        self.id = 0
+
+    def name_node(self):
+        self.id += 1
+        return 'n%02d' % self.id
+
+    def printGraph(self,path):
+        self.graph.write_png(path)
+
+    def visit(self, node):
+        if node:
+            if (node.isLeaf):
+                parent_node = self.visit_leaf(node)
+                self.graph.add_node(parent_node)
+            else:
+                print ("class name : ",str(node.__class__.__name__))
+                #method = 'visit_' + node.__class__.__name__
+                if (str(node.__class__.__name__)  in self.excluidos):
+                    #parent_node = self.visit_excluidos(node)
+                #else:
+                    print ("you are excluded!")
+                    parent_node = self.visit_excluidos(node)
+
+                    #parent_node = self.visit_non_leaf(node)
+
+                else:
+                    print ("you are ok")
+                    parent_node = self.visit_non_leaf(node)
+
+                    self.graph.add_node(parent_node)
+        return parent_node
+
+    def visit_excluidos(self,node):
+        print ("visit_excluidos")
+        node_id = "%s %s"% (self.name_node(),node.__repr__())
+        parent_node = pydotplus.Node(node_id,label="Exluido",shape='box3d', style="filled", fillcolor="red")
+
+        for i in range (1,len(node._fields)):
+            if (not isinstance(getattr(node,node._fields[i]) , list) ):
+                child_node = self.visit(getattr(node,node._fields[i]))
+                self.graph.add_edge(pydotplus.Edge(parent_node, child_node))
+            else:
+                for foo in getattr(node,node._fields[i]):
+                    if isinstance(foo,AST):
+                        child_node = self.visit(foo)
+                        self.graph.add_edge(pydotplus.Edge(parent_node, child_node))
+        return parent_node
+
+    def visit_leaf(self, node):
+        print ("---visit_leaf---")
+        node_id = "%s %s %s"% (self.name_node(),node.__class__.__name__,node.__repr__())
+        print ("hoja : ", node_id)
+        return pydotplus.Node(node_id, label = node.__repr__(),shape='box', style="filled", fillcolor="#7BC255")
+
+    def visit_non_leaf(self,node):
+        print ("---visit_non_leaf---")
+        node_id = "%s %s %s"% (self.name_node(),node.__class__.__name__,node.__repr__())
+        parent_node = pydotplus.Node(node_id, label=node.__class__.__name__, style="filled", fillcolor="#55B7C2")
+        print ("agrega : ", node_id)
+
+        for field in getattr(node,"_fields"):
+            value = getattr(node,field,None)
+            if isinstance(value,list):
+                for item in value:
+                    if isinstance(item,AST):
+                        child_node = self.visit(item)
+                        print ("arco : ")
+                        self.graph.add_edge(pydotplus.Edge(parent_node, child_node))
+
+            elif isinstance(value,AST):
+                child_node = self.visit(value)
+                print ("arco : ", child_node.__repr__())
+                self.graph.add_edge(pydotplus.Edge(parent_node, child_node))
+
+        print ("returning!!")
+        return parent_node
+
+def flatten(top):
+    class Flattener(NodeVisitor):
+
+        def __init__(self):
+            self.depth = 0
+            self.nodes = []
+            NodeVisitor.createGraph(self)
+
+        def generic_visit(self, node):
+            #self.nodes.append((self.depth, node))
+            #self.depth += 1
+            NodeVisitor.generic_visit(self, node)
+            #self.depth -= 1
+
+    d = Flattener()
+    d.visit(top)
+    d.printGraph("answer.png")
+    #return d.nodes
