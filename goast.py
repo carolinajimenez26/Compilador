@@ -336,7 +336,7 @@ class DotVisitor(): # para crear el grafo con graphviz
                     #parent_node = self.visit_excluidos(node)
                 #else:
                     print ("you are excluded!")
-                    parent_node = self.visit_excluidos(node)
+                    parent_node = self.visit_non_leaf(node)
 
                     #parent_node = self.visit_non_leaf(node)
 
