@@ -18,7 +18,7 @@ tokens = [
     'ID', 'CONST', 'VAR', 'PRINT', 'FUNC', 'EXTERN',
 
     # Control de flujo
-    'IF', 'ELSE', 'WHILE', 'FOR', 'SWITCH', 'CASE', 'RETURN', 'DEFAULT',
+    'IF', 'ELSE', 'WHILE', 'FOR', 'RETURN', 'READ', 'WRITE',
 
     # Operatores y delimitadores
     'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'ASSIGN', 'SEMI', 'RESIDUE',
@@ -48,11 +48,10 @@ reserved = {
     'func'        : 'FUNC',
     'extern'      : 'EXTERN',
     'print'       : 'PRINT',
-    'default'     : 'DEFAULT',
-    'case'        : 'CASE',
-    'switch'      : 'SWITCH',
     'return'      : 'RETURN',
     'for'         : 'FOR',
+    'read'        : 'READ',
+    'write'       : 'WRITE',
 }
 
 # ----------------------------------------------------------------------
