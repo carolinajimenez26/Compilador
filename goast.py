@@ -219,18 +219,6 @@ class Opper(AST):
     def __repr__(self):
         return '%r %r' % self.ID,self.op
 
-class SwitchStatement(AST):
-    _fields = ['condition', 'body']
-
-    def __repr__(self):
-        return '%r' % self.condition
-
-class CaseStatement(AST):
-    _fields = ['value', 'body', 'else']
-
-    def __repr__(self):
-        return '%r' % self.value
-
 class ForStatement(AST):
     _fields = ['condition', 'statement', 'expression', 'body']
 
