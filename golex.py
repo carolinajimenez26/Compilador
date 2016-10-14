@@ -32,7 +32,7 @@ tokens = [
     'EQ', 'NE', 'OR', 'AND',
 
     # Literales
-    'INT', 'FLOAT', 'STRING', 'BOOLEAN',
+    'INTEGER', 'FLOAT', 'STRING', 'BOOLEAN', 'INT', 'BOOL',
 ]
 
 # ----------------------------------------------------------------------
@@ -52,6 +52,8 @@ reserved = {
     'for'         : 'FOR',
     'read'        : 'READ',
     'write'       : 'WRITE',
+    'int'         : 'INT',
+    'bool'        : 'BOOL',
 }
 
 # ----------------------------------------------------------------------
@@ -165,7 +167,7 @@ def t_FLOAT(t):
     t.value = float(t.value)
     return t
 
-def t_INT(t):
+def t_INTEGER(t):
     r'0[xX][0-9a-fA-F]+|[\d]+|0[0-7]*'
     t.value = int(str(t.value),0)
     return t

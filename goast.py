@@ -41,7 +41,7 @@ class PrintStatement(AST):
     _fields = ['expr']
 
     def __repr__(self):
-        return '%r' % self.expr
+        return '' 
 
 class Literal(AST):
     '''
@@ -105,10 +105,10 @@ class ParamDecl(AST):
         return '%r' % self.id
 
 class AssignmentStatement(AST):
-    _fields = ['location', 'value']
+    _fields = ['location', 'value','assign']
 
     def __repr__(self):
-        return '%r' % self.location
+        return '%r' % self.assign
 
 class ConstDeclaration(AST):
     _fields = ['id', 'value']
@@ -126,13 +126,13 @@ class IfStatement(AST):
     _fields = ['condition', 'then_b', 'else_b']
 
     def __repr__(self):
-        return '%r' % self.condition
+        return ''
 
 class WhileStatement(AST):
     _fields = ['condition', 'body']
 
     def __repr__(self):
-        return '%r' % self.condition
+        return '' 
 
 class LoadLocation(AST):
     _fields = ['name']
