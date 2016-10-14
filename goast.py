@@ -83,7 +83,7 @@ class Extern(AST):
         return ''
 
 class FuncPrototype(AST):
-    _fields = ['id', 'params', 'typename', 'body']
+    _fields = ['id', 'params', 'typename']
 
     def __repr__(self):
         return '%r' % self.id
@@ -126,7 +126,7 @@ class IfStatement(AST):
     _fields = ['condition', 'then_b', 'else_b']
 
     def __repr__(self):
-        return ''
+        return '%r' % self.condition
 
 class WhileStatement(AST):
     _fields = ['condition', 'body']
@@ -174,7 +174,7 @@ class FunCall(AST):
     _fields = ['id', 'params']
 
     def __repr__(self):
-        return '%r' % self.id,self.params
+        return '%r' % self.id
 
 class ExprList(AST):
     _fields = ['expressions']
@@ -183,7 +183,7 @@ class ExprList(AST):
         self.expressions.append(e)
 
     def __repr__(self):
-        return '%r' % self.expressions
+        return ""
 
 class Empty(AST):
     _fields = []
@@ -204,7 +204,7 @@ class Return(AST):
     _fields = ['expression']
 
     def __repr__(self):
-        return '%r' % self.expression
+        return '' 
 
 class Location(AST):
     _fields = ['location']
@@ -217,7 +217,7 @@ class Opper(AST):
     _fields = ['ID', 'op']
 
     def __repr__(self):
-        return '%r' % self.op
+        return '%r %r' % self.ID,self.op
 
 class SwitchStatement(AST):
     _fields = ['condition', 'body']
@@ -236,6 +236,18 @@ class ForStatement(AST):
 
     def __repr__(self):
         return '%r' % self.condition
+
+class FuncDeclaration(AST):
+    _fields = ['id', 'params', 'typename', 'body']
+
+    def __repr__(self):
+        return '%r' % self.id
+
+class FunCall(AST):
+    _fields = ['expresion_funcall']
+
+    def __repr__(self):
+        return ""
 
 # ---------------------------------------------------------
 # Patron Visitor
@@ -365,14 +377,16 @@ class DotVisitor(): # para crear el grafo con graphviz
 
     def visit_leaf(self, node):
         print ("---visit_leaf---")
-        node_id = "%s %s %s"% (self.name_node(),node.__class__.__name__,node.__repr__())
+        node_id = "%s %s"% (self.name_node(),node.__class__.__name__)
         print ("hoja : ", node_id)
-        return pydotplus.Node(node_id, label = node.__repr__(),shape='box', style="filled", fillcolor="#7BC255")
+        print ("id : ", node_id)
+        child_node = pydotplus.Node(node_id, label = node.__repr__(),shape='box', style="filled", fillcolor="#7BC255")
+        return child_node
 
     def visit_non_leaf(self,node):
         print ("---visit_non_leaf---")
-        node_id = "%s %s %s"% (self.name_node(),node.__class__.__name__,node.__repr__())
-        parent_node = pydotplus.Node(node_id, label=node.__class__.__name__, style="filled", fillcolor="#55B7C2")
+        node_id = "%s %s"% (self.name_node(),node.__class__.__name__)
+        parent_node = pydotplus.Node(node_id, label = node.__class__.__name__+" "+node.__repr__(), style="filled", fillcolor="#55B7C2")
         print ("agrega : ", node_id)
 
         for field in getattr(node,"_fields"):
@@ -381,12 +395,16 @@ class DotVisitor(): # para crear el grafo con graphviz
                 for item in value:
                     if isinstance(item,AST):
                         child_node = self.visit(item)
-                        print ("arco : ")
+
+                        print ("nombresito : ", child_node.get_name())
+                        #self.graph.del_node(child_node)
+                        #if (child_node.get_name().split(" ")[1][:-1] not in self.excluidos):
                         self.graph.add_edge(pydotplus.Edge(parent_node, child_node))
 
             elif isinstance(value,AST):
                 child_node = self.visit(value)
                 print ("arco : ", child_node.__repr__())
+                #if (child_node.get_name().split(" ")[1][:-1] not in self.excluidos):
                 self.graph.add_edge(pydotplus.Edge(parent_node, child_node))
 
         print ("returning!!")
