@@ -1,5 +1,5 @@
-func quicksort(l int, r int, a int[8192]) {
-	
+func quicksort(l int, r int, a int[8192]) float {
+
 	var i int = l;
 	var j int = r;
 	var x int = a[(l+r)/2];
@@ -13,7 +13,7 @@ func quicksort(l int, r int, a int[8192]) {
 			j = j - 1;
 		}
 		if i <= j {
-			tmp int = a[i];
+			var tmp int = a[i];
 			a[i] = a[j];
 			a[j] = tmp;
 			i = i + 1;

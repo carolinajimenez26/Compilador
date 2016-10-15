@@ -41,7 +41,7 @@ class PrintStatement(AST):
     _fields = ['expr']
 
     def __repr__(self):
-        return '' 
+        return ''
 
 class Literal(AST):
     '''
@@ -99,16 +99,16 @@ class Parameters(AST):
         return ''
 
 class ParamDecl(AST):
-    _fields = ['id', 'typename']
+    _fields = ['id', 'typename', 'vector']
 
     def __repr__(self):
         return '%r' % self.id
 
 class AssignmentStatement(AST):
-    _fields = ['location', 'value','assign']
+    _fields = ['location', 'value', 'asig']
 
     def __repr__(self):
-        return '%r' % self.assign
+        return '%r' % self.asig
 
 class ConstDeclaration(AST):
     _fields = ['id', 'value']
@@ -117,7 +117,7 @@ class ConstDeclaration(AST):
         return '%r' % self.id
 
 class VarDeclaration(AST):
-    _fields = ['id', 'typename', 'value']
+    _fields = ['id', 'typename', 'value', 'vector']
 
     def __repr__(self):
         return '%r' % self.id
@@ -132,7 +132,7 @@ class WhileStatement(AST):
     _fields = ['condition', 'body']
 
     def __repr__(self):
-        return '' 
+        return ''
 
 class LoadLocation(AST):
     _fields = ['name']
@@ -204,10 +204,10 @@ class Return(AST):
     _fields = ['expression']
 
     def __repr__(self):
-        return '' 
+        return ''
 
 class Location(AST):
-    _fields = ['location']
+    _fields = ['location', 'vector']
 
     def __repr__(self):
         return '%r' % self.location
@@ -217,7 +217,7 @@ class Opper(AST):
     _fields = ['ID', 'op']
 
     def __repr__(self):
-        return '%r %r' % self.ID,self.op
+        return '%r' % self.op
 
 class ForStatement(AST):
     _fields = ['condition', 'statement', 'expression', 'body']
@@ -231,8 +231,26 @@ class FuncDeclaration(AST):
     def __repr__(self):
         return '%r' % self.id
 
-class FunCall(AST):
-    _fields = ['expresion_funcall']
+class Number(AST):
+    _fields = ['value']
+
+    def __repr__(self):
+        return '%r' % self.value
+
+class VectorStatement(AST):
+    _fields = ['id']
+
+    def __repr__(self):
+        return ""
+
+class ReadStatement(AST):
+    _fields = ['expression']
+
+    def __repr__(self):
+        return ""
+
+class WriteStatement(AST):
+    _fields = ['expression']
 
     def __repr__(self):
         return ""
@@ -397,6 +415,7 @@ class DotVisitor(): # para crear el grafo con graphviz
 
         print ("returning!!")
         return parent_node
+
 
 def flatten(top):
     class Flattener(NodeVisitor):
