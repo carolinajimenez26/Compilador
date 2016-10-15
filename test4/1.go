@@ -1,5 +1,5 @@
 var a int;
-var b int = 3; 
+var b int = 3;
 
 while true {
 
@@ -8,6 +8,5 @@ while true {
         while false{
            c += 1;
         }
-    } 
+    }
 }
-

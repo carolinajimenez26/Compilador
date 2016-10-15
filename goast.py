@@ -168,7 +168,7 @@ class Group(AST):
     _fields = ['expression']
 
     def __repr__(self):
-        return '%r' % self.expression
+        return ''
 
 class FunCall(AST):
     _fields = ['id', 'params']
@@ -220,10 +220,10 @@ class Opper(AST):
         return '%r' % self.op
 
 class ForStatement(AST):
-    _fields = ['condition', 'statement', 'expression', 'body']
+    _fields = ['statement','condition', 'expression', 'body']
 
     def __repr__(self):
-        return '%r' % self.condition
+        return ''
 
 class FuncDeclaration(AST):
     _fields = ['id', 'params', 'typename', 'body']
@@ -328,8 +328,7 @@ class NodeVisitor:
 
 class DotVisitor(): # para crear el grafo con graphviz
 
-    #excluidos = ["FunCall","BinaryOp","FuncPrototype","RelationalOp"]
-    excluidos = ["Statements","Statement","ExprList"]
+    excluidos = ["Statement","ExprList","Parameters"]
 
     def __init__(self):
         self.graph = pydotplus.Dot("AST", graph_type = 'digraph') # grafo dirigido

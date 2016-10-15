@@ -1,5 +1,11 @@
-while true {//a < 1 && b == 3 || c != b & d += 1 < c | e == true) {
-	//print ("yayyy");
-	//i++;
-	i--;
+while a < 1 && (b == 3 || c != b || b <= d && e == true) {
+	i--
+}
+
+while a < 1 && b == 3 || c != b || b <= d && e == true {
+	print ("yayyy");
+}
+
+while a < 1 && ((b == 3 || c != b) || b <= d && e == true) {
+	i+=1;
 }

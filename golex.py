@@ -164,8 +164,6 @@ def _replace_escape_codes2(t):
     size = len(t.value)
     cont = 0
     aux = 0
-    #print ("t : ", t.value)
-    #print ("size(t) : ", size)
     flag = False # ignora el que sigue para que no lo agregue a s
     for i in range (0,size):
         if (aux >= 2):
@@ -173,42 +171,30 @@ def _replace_escape_codes2(t):
         if (flag):
             aux += 1
         if (t.value[i] == "\\" and cont < size - 1):
-            #print("|||||")
             if (str(t.value[i+1]) == "n"):
                 s += "\\u000A"
                 flag = True
-                #aux += 1
             elif (t.value[i+1] == "t"):
                 s += "\\u0009"
                 flag = True
-                #aux += 1
             elif (t.value[i+1] == "\""):
                 s = s + "\\u0022"
                 flag = True
-                #aux += 1
             elif (t.value[i+1] == "r"):
                 s += "\\u000D"
                 flag = True
-                #aux += 1
             elif (t.value[i+1] == "b"):
                 s += "\\u0062"
                 flag = True
-                #aux += 1
             elif(t.value[i+1] == "\\"):
                 s += "\\u005C"
                 flag = True
-                #aux += 1
             aux += 1
         else:
             if (not flag):
                 if (t.value[i] != "\""):
                     s = s + str(t.value[i])
-                    #print("----")
                     flag = False
-        #print ("s : ", s)
-    #print ("i : ", i)
-    #print ("aux : ", aux)
-    #print ("size(s) : ", len(s))
     return s
 
 
