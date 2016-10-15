@@ -256,74 +256,57 @@ class WriteStatement(AST):
         return ""
 
 # ---------------------------------------------------------
-# Patron Visitor
-class NodeVisitor:
+# NO MODIFIQUE
+class NodeVisitor(object):
     '''
-    Clase para visitar nodos en el AST
+    Clase para visitar nodos del árbol de sintaxis.  Se modeló a partir
+    de una clase similar en la librería estándar ast.NodeVisitor.  Para
+    cada nodo, el método visit(node) llama un método visit_NodeName(node)
+    el cual debe ser implementado en la subclase.  El método genérico
+    generic_visit() es llamado para todos los nodos donde no hay coincidencia
+    con el método visit_NodeName().
+    Es es un ejemplo de un visitante que examina operadores binarios:
+        class VisitOps(NodeVisitor):
+            visit_Binop(self,node):
+                print("Operador binario", node.op)
+                self.visit(node.left)
+                self.visit(node.right)
+            visit_Unaryop(self,node):
+                print("Operador unario", node.op)
+                self.visit(node.expr)
+        tree = parse(txt)
+        VisitOps().visit(tree)
     '''
-
-    def createGraph(self):
-        self.graph = pydotplus.Dot("AST", graph_type = 'digraph') # grafo dirigido
-        self.id = 0
-
-    def name_node(self):
-        self.id += 1
-        return 'n%02d' % self.id
-
-    def visit(self, node):
-        print ("---visit---")
+    def visit(self,node):
         '''
-        Ejecuta un metodo de la forma visit_NodeName(node) donde
-        NodeName es el nombre de la clase de un nodo en particular
+        Ejecuta un método de la forma visit_NodeName(node) donde
+        NodeName es el nombre de la clase de un nodo particular.
         '''
         if node:
-            print ("node : ", node)
-            #method = 'visit_' + node.__class__.__name__
-            #visitor = getattr(self, method, self.generic_visit)
-            #return visitor(node)
-            parent_node = self.generic_visit(node)
-            print ("parent_node : ", parent_node)
-            if parent_node:
-                self.graph.add_node(parent_node)
-
-                return parent_node
-
+            method = 'visit_' + node.__class__.__name__
+            # visitor es el metodo que visita el nodo, primero pregunta
+            # si el nodo ya tiene este metodo, para asignarlo a visitor,
+            # si no, entonces le asigna el metodo generic_visit
+            visitor = getattr(self, method, self.generic_visit)
+            return visitor(node)
+            # retorna el llamado a la funcion que visita el nodo
         else:
-            print ("there is not node")
             return None
 
-    def generic_visit(self, node):
-        print ("---generic_visit---")
+    def generic_visit(self,node):
         '''
-        Metodo ejecutado si no es aplicable visit_method.
+        Método ejecutado si no se encuentra médodo aplicable visit_.
+        Este examina el nodo para ver si tiene _fields, es una lista,
+        o puede ser recorrido completamente.
         '''
-
-        node_id = "%s %s %s"% (self.name_node(),node.__class__.__name__,node.__repr__())
-        parent_node = pydotplus.Node(node_id, style="filled", fillcolor="#55B7C2")
-        print ("parent_node : ", parent_node)
-        print ("parent_node id :", node_id)
-
-        for field in getattr(node, '_fields'):
-
-            value = getattr(node, field, None)
-            if isinstance(value, list):
-                for item in value:
-                    if isinstance(item, AST):
-                        #self.visit(item)
-                        child_node = self.visit(item)
-                        if child_node:
-                            self.graph.add_edge(pydotplus.Edge(parent_node, child_node))
-
-            elif isinstance(value, AST):
-                #self.visit(value)
-                child_node = self.visit(value)
-                if child_node:
-                    self.graph.add_edge(pydotplus.Edge(parent_node, child_node))
-
-        return parent_node
-
-    def printGraph(self,path):
-        self.graph.write_png(path)
+        for field in getattr(node,"_fields"):
+            value = getattr(node,field,None)
+            if isinstance(value, list): # si value es una lista
+                for item in value: # recorremos los elementos de la lista
+                    if isinstance(item,AST): # si el item es un AST
+                        self.visit(item) # lo debemos visitar
+            elif isinstance(value, AST): # si value es un AST
+                self.visit(value) # debemos recorrerlo
 
 
 class DotVisitor(): # para crear el grafo con graphviz
@@ -422,15 +405,13 @@ def flatten(top):
         def __init__(self):
             self.depth = 0
             self.nodes = []
-            NodeVisitor.createGraph(self)
 
         def generic_visit(self, node):
-            #self.nodes.append((self.depth, node))
-            #self.depth += 1
+            self.nodes.append((self.depth, node.__class__.__name__ + " " + node.__repr__()))
+            self.depth += 1
             NodeVisitor.generic_visit(self, node)
-            #self.depth -= 1
+            self.depth -= 1
 
     d = Flattener()
     d.visit(top)
-    d.printGraph("answer.png")
-    #return d.nodes
+    return d.nodes
