@@ -158,9 +158,11 @@ class CheckProgramVisitor(NodeVisitor):
         Nota: Usted tendrá que ajustar los nombres de los nodos del AST si
         ha elegido nombres diferentes.
         '''
+        types = [gotype.boolean_type, gotype.int_type, gotype.float_type, gotype.string_type]
         def __init__(self):
                 # Inicializa la tabla de simbolos
-                pass
+                self.current = SymbolTable()
+                self.symtab = self.current
 
         def push_symtab(self, node):
                 self.current = SymbolTable(self.current)
@@ -212,6 +214,8 @@ class CheckProgramVisitor(NodeVisitor):
                 # 3. Asigne el tipo resultante
                 self.visit(node.left)
                 self.visit(node.right)
+                if node.left.type != node.right.type:
+                    error(node.lineno,"Operación no valida")
                 node.type = node.left.type
 
         def visit_AssignmentStatement(self,node):
@@ -252,7 +256,10 @@ class CheckProgramVisitor(NodeVisitor):
 
         def visit_Typename(self,node):
                 # 1. Revisar que el nombre de tipo es válido que es actualmente un tipo
-                pass
+                if (node.type not in types):
+                    error(node.lineno,"Tipo Invalido")
+                else:
+                    self.visit(node.type)
 
         def visit_Location(self,node):
                 # 1. Revisar que la localización es una variable válida o un valor constante
