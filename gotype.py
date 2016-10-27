@@ -47,13 +47,19 @@ class GoType(object):
 # los argumentos apropiados dependiendo de su definición de GoType
 int_type = GoType("int",
         set(('PLUS', 'MINUS', 'TIMES', 'DIVIDE',
-             'LE', 'LT', 'EQ', 'NE', 'GT', 'GE')),
-        set(('PLUS', 'MINUS')),
+             'LE', 'LT', 'EQ', 'NE', 'GT', 'GE', #Apartir de aqui Agregados
+             'RESIDUE', 'POSITIVEINCREASE', 'NEGATIVEINCREASE',
+             'MULTIPLIINCREASE', 'DIVIDEINCREASE')),
+        set(('PLUS', 'MINUS', #Apartir de aqui Agregados
+        	 'DECREMENT', 'INCREASE')),
         )
 float_type = GoType("float",
         set(('PLUS', 'MINUS', 'TIMES', 'DIVIDE',
-             'LE', 'LT', 'EQ', 'NE', 'GT', 'GE')),
-        set(('PLUS', 'MINUS')),
+             'LE', 'LT', 'EQ', 'NE', 'GT', 'GE',
+             'POSITIVEINCREASE', 'NEGATIVEINCREASE',
+             'MULTIPLIINCREASE', 'DIVIDEINCREASE')),
+        set(('PLUS', 'MINUS', #Apartir de aqui Agregados
+        	 'DECREMENT', 'INCREASE')),
         )
 string_type = GoType("string",
         set(('PLUS',)),
@@ -66,3 +72,10 @@ boolean_type = GoType("bool",
 # En el código de verificación, deberá hacer referencia a los
 # objetos de tipos de arriba.  Piense en como va a querer tener
 # acceso a ellos.
+
+#-----CAMBIOS AL DOCUMENTO-----
+#Se agrega operadores unarios INCREASE y DECREASE en int y float
+#Se agrega el operador binario RESIDUE para int
+#Investigar para que son los óperadores binarios & y |
+#El operador unario & hace referencia a punteros https://golang.org/ref/spec#Address_operators
+#Se agrega los operadores binarios POSITIVEINCREASE, NEGATIVEINCREASE, MULTIPLIINCREASE y DIVIDEINCREASE en int y float
