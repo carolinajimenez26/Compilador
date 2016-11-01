@@ -158,7 +158,7 @@ class CheckProgramVisitor(NodeVisitor):
         Nota: Usted tendrá que ajustar los nombres de los nodos del AST si
         ha elegido nombres diferentes.
         '''
-        types = [gotype.boolean_type, gotype.int_type, gotype.float_type, gotype.string_type]
+        tipos = [gotype.boolean_type, gotype.int_type, gotype.float_type, gotype.string_type]
         def __init__(self):
                 # Inicializa la tabla de simbolos
                 self.current = SymbolTable()
@@ -247,6 +247,7 @@ class CheckProgramVisitor(NodeVisitor):
                 # 2. Revise que el tipo de la expresión (si lo hay) es el mismo
                 if node.value:
                         self.visit(node.value)
+                        #assert(node.typename.typename == node.value.type.name) ¿?
                         assert(node.typename == node.value.type.name)
                 # 4. Si no hay expresión, establecer un valor inicial para el valor
                 else:
@@ -256,7 +257,7 @@ class CheckProgramVisitor(NodeVisitor):
 
         def visit_Typename(self,node):
                 # 1. Revisar que el nombre de tipo es válido que es actualmente un tipo
-                if (node.type not in types):
+                if (node.type not in tipos):
                     error(node.lineno,"Tipo Invalido")
                 else:
                     self.visit(node.type)
@@ -264,7 +265,10 @@ class CheckProgramVisitor(NodeVisitor):
         def visit_Location(self,node):
                 # 1. Revisar que la localización es una variable válida o un valor constante
                 # 2. Asigne el tipo de la localización al nodo
-                pass
+                if (self.current.lookup(node.location) not in tipos):
+                        error(node.lineno,"La localizacion no es una variable valida")
+                    else:
+                        node.type = self.current.lookup(node.location)
 
         def visit_LoadLocation(self,node):
                 # 1. Revisar que loa localización cargada es válida.
@@ -292,11 +296,13 @@ class CheckProgramVisitor(NodeVisitor):
                 # registe el nombre de la función
                 self.visit(node.func_prototype)
 
-        def visit_FuncPrototype(self, node):
-                print('foooooo')
+        def visit_FuncPrototype(self, node): # ¿?
                 if self.symtab.lookup(node.id):
                         error(node.lineno, "Símbol %s ya definido" % node.id)
+                else:
+                    self.symtab.add(node.id, node) # ¿?
                 self.visit(node.params)
+                #self.visit(node.typename) ¿?
                 node.type = self.symtab.lookup(node.typename)
 
         def visit_Parameters(self, node):
@@ -305,6 +311,7 @@ class CheckProgramVisitor(NodeVisitor):
 
         def visit_ParamDecl(self, node):
                 node.type = self.symtab.lookup(node.typename)
+                #node.type = self.symtab.lookup(node.typename.typename) ¿?
 
         def visit_Group(self, node):
                 self.visit(node.expression)
@@ -320,11 +327,68 @@ class CheckProgramVisitor(NodeVisitor):
                 node.type = self.symtab.lookup('bool')
 
         def visit_FunCall(self, node):
-                pass
+                if not self.current.lookup(node.id.location):
+                    error(node.lineno,"La funcion no esta definida ")
+                else:
+                    self.visit(node.params)
+                    self.visit(node.id)
+                    node.type = node.id.type
+
         def visit_ExprList(self, node):
                 pass
         def visit_Empty(self, node):
                 pass
+
+        # Agregados
+
+        def visit_Statements(self,node):
+            for s in node.statements:
+                self.visit(s)
+
+        def visit_Statement(self,node):
+            self.visit(node.statement)
+
+        def visit_StoreVar(self,node):
+            pass
+
+        def visit_Return(self,node):
+            self.visit(node.expression)
+
+        def visit_Opper(self,node):
+            pass
+
+        def visit_ForStatement(self,node):
+            self.visit(node.condition)
+            if not node.condition.type == gotype.boolean_type:
+                error(node.lineno,"Tipo incorrecto para la condicion for")
+            else:
+                self.visit(node.statement)
+                if not node.statement.type == gotype.int_type: # ¿?
+                    error(node.lineno,"Tipo incorrecto para la asignacion for")
+                else:
+                    self.visit(node.expression)
+                    if (node.expression.type not in tipos): # ¿?
+                        error(node.lineno,"Tipo incorrecto para la expresion for")
+                    else:
+                        self.visit(node.body)
+
+        def visit_FuncDeclaration(self,node):
+            pass
+
+        def visit_Number(self,node):
+            if not(node.type == gotype.int_type or node.type == gotype.float_type):
+                error(node.lineno,"Error en el tipo de dato")
+            else:
+                self.visit(node.expression)
+
+        # ¿ visit_VectorStatement ?
+
+        def visit_ReadStatement(self,node):
+            pass
+
+        def visit_WriteStatement(self,node):
+            pass
+
 
 # ----------------------------------------------------------------------
 #                       NO MODIFICAR NADA DE LO DE ABAJO
