@@ -334,8 +334,9 @@ class CheckProgramVisitor(NodeVisitor):
                     self.visit(node.id)
                     node.type = node.id.type
 
-        def visit_ExprList(self, node):
-                pass
+        def visit_ExprList(self, node):#j
+            for p in node.expressions:
+                self.visit(p)
         def visit_Empty(self, node):
                 pass
 
@@ -343,19 +344,23 @@ class CheckProgramVisitor(NodeVisitor):
 
         def visit_Statements(self,node):
             for s in node.statements:
-                self.visit(s)
+                    self.visit(s)
 
         def visit_Statement(self,node):
             self.visit(node.statement)
 
-        def visit_StoreVar(self,node):
-            pass
+        def visit_StoreVar(self,node):#j
+            sym = self.symtab.lookup(node.name)
+            assert(sym)
+            node.type = sym.type
 
         def visit_Return(self,node):
             self.visit(node.expression)
 
-        def visit_Opper(self,node):
-            pass
+        def visit_Opper(self,node):#j
+            sym = self.symtab.lookup(node.ID)
+            assert(sym)
+            node.type = sym.type
 
         def visit_ForStatement(self,node):
             self.visit(node.condition)
@@ -372,7 +377,7 @@ class CheckProgramVisitor(NodeVisitor):
                     else:
                         self.visit(node.body)
 
-        def visit_FuncDeclaration(self,node):
+        def visit_FuncDeclaration(self,node):#?¡
             pass
 
         def visit_Number(self,node):
@@ -381,13 +386,11 @@ class CheckProgramVisitor(NodeVisitor):
             else:
                 self.visit(node.expression)
 
-        # ¿ visit_VectorStatement ?
+        def visit_ReadStatement(self,node):#j
+            self.visit(node.expression)
 
-        def visit_ReadStatement(self,node):
-            pass
-
-        def visit_WriteStatement(self,node):
-            pass
+        def visit_WriteStatement(self,node):#j
+            self.visit(node.expression)
 
 
 # ----------------------------------------------------------------------
