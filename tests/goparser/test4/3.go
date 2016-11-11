@@ -1,5 +1,5 @@
 //no debe graficar la funcion
-func gcd(a int = 10, b int) string {
+func gcd(a int, b int) string {
 	return gcd(b,a%b);
 }
 

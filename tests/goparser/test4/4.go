@@ -1,4 +1,5 @@
-var a int; 
+var a int
+a = 5*a
 a += 5
 a *= 7
 a -= 6

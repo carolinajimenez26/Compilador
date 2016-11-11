@@ -131,25 +131,19 @@ class SymbolTable(object):
                 func foo(x:int, y:int)
                 x:float;
                 '''
-                if self.symtab.has_key(a):
+                #if self.symtab.has_key(a):
+                if a in self.symtab:
                         if self.symtab[a].type.get_string() != v.type.get_string():
                                 raise SymbolTable.SymbolConflictError()
                         else:
                                 raise SymbolTable.SymbolDefinedError()
                 self.symtab[a] = v
-                print ("tabla de simbolos : ", self.symtab)
 
         def lookup(self, a):
-                print("entro a visitar aa",a)
-                print("symtab",self.symtab)
                 i=str(a)
                 i= i.strip("'")
-                
-                print("type",type(i))
-                o=i in self.symtab
-                print("symtab hasket: ",i)#aqui esta lo confuso
-                print("symtab hasket raro!s: ",o)
-                if self.symtab.has_key(i):
+                #if self.symtab.has_key(i):
+                if i in self.symtab:
                         return self.symtab[i]
                 else:
                         if self.parent != None:
@@ -174,7 +168,7 @@ class CheckProgramVisitor(NodeVisitor):
         def __init__(self):
                 # Inicializa la tabla de simbolos
                 self.current = SymbolTable()
-                self.symtab = self.current
+                self.symtab = self.current # SymbolTable()
 
         def push_symtab(self, node):
                 self.current = SymbolTable(self.current)
@@ -184,6 +178,7 @@ class CheckProgramVisitor(NodeVisitor):
                 self.current = self.current.parent
 
         def visit_Program(self,node):
+                print ("visit_Program")
 
                 """self.push_symtab(node)"""
                 # Agrega nombre de tipos incorporados ((int, float, string) a la  tabla de simbolos
@@ -205,6 +200,7 @@ class CheckProgramVisitor(NodeVisitor):
                 self.visit(node.program)
 
         def visit_IfStatement(self, node):
+                print ("visit_IfStatement")
                 self.visit(node.condition)
                 if not node.condition.type == gotype.boolean_type:
                         error(node.lineno, "Tipo incorrecto para condición if")
@@ -214,13 +210,16 @@ class CheckProgramVisitor(NodeVisitor):
                                 self.visit(node.else_b)
 
         def visit_WhileStatement(self, node):
+                print ("visit_WhileStatement")
                 self.visit(node.condition)
-                if not node.condition.type == gotype.boolean_type:
+                #print ("caro",node.condition) # ARREGLAAAAARRR
+                if not node.condition.isBoolean():
                         error(node.lineno, "Tipo incorrecto para condición while")
                 else:
                         self.visit(node.body)
 
         def visit_UnaryOp(self, node):
+                print ("visit_UnaryOp")
                 # 1. Asegúrese que la operación es compatible con el tipo
                 # 2. Ajuste el tipo resultante al mismo del operando
                 self.visit(node.left)
@@ -229,6 +228,7 @@ class CheckProgramVisitor(NodeVisitor):
                 self.type = node.left.type
 
         def visit_BinaryOp(self, node):
+                print ("visit_BinaryOp")
                 # 1. Asegúrese que los operandos left y right tienen el mismo tipo
                 # 2. Asegúrese que la operación está soportada
                 # 3. Asigne el tipo resultante
@@ -239,14 +239,10 @@ class CheckProgramVisitor(NodeVisitor):
                 node.type = node.left.type
 
         def visit_AssignmentStatement(self,node):
+                print ("visit_AssignmentStatement")
                 # 1. Asegúrese que la localización de la asignación está definida
-                print ("busca : ", node.location)
                 algo = str(node.location)
-                print (type(algo))
-                print ("tablis : ", self.symtab)
-                print ("current : ", self.current)
                 sym = self.symtab.lookup(algo)
-                print ("yayyy : " ,self.current.lookup(algo))
                 assert sym, "Asignado a un sym desconocido"
                 # 2. Revise que la asignación es permitida, pe. sym no es una constante
                 # 3. Revise que los tipos coincidan.
@@ -254,6 +250,7 @@ class CheckProgramVisitor(NodeVisitor):
                 assert sym.type == node.value.type, "Tipos no coinciden en asignación"
 
         def visit_ConstDeclaration(self,node):
+                print ("visit_ConstDeclaration")
                 # 1. Revise que el nombre de la constante no se ha definido
                 if self.symtab.lookup(node.id):
                         error(node.lineno, "Símbol %s ya definido" % node.id)
@@ -265,30 +262,27 @@ class CheckProgramVisitor(NodeVisitor):
                 node.type = node.value.type
 
         def visit_VarDeclaration(self,node):
-                print ("node : ", node) #muestra la __repr__
+                print ("visit_VarDeclaration")
                 # 1. Revise que el nombre de la variable no se ha definido
                 if self.current.lookup(node.id):
                         error(node.lineno, "Símbol %s ya definido" % node.id)
                 # 2. Agrege la entrada a la tabla de símbolos
                 else:
                         self.current.add(node.id, node)
-                        print ("agrega uno nuevo : ", self.current)
                 # 2. Revise que el tipo de la expresión (si lo hay) es el mismo
                 if node.value:
                         self.visit(node.value)
-                        print("node.value : ",node.value)
                         #assert(node.typename.typename == node.value.type.name) ¿?
                        # assert(node.typename == node.value.type.name)
                 # 4. Si no hay expresión, establecer un valor inicial para el valor
                 else:
                         node.value = None
-                print ("node.typename : ", node.typename)
-                print ("heeyy : ", self.current.lookup("int"))
                 node.type = self.current.lookup(node.typename.typename)
-                print ("node.type : ", node.type)
+                print (node.type)
                 assert(node.type)
 
         def visit_Typename(self,node):
+                print ("visit_Typename")
                 # 1. Revisar que el nombre de   tipo es válido que es actualmente un tipo
                 if (node.type not in tipos):
                     error(node.lineno,"Tipo Invalido")
@@ -296,6 +290,7 @@ class CheckProgramVisitor(NodeVisitor):
                     self.visit(node.type)
 
         def visit_Location(self,node):
+                print ("visit_Location")
                 # 1. Revisar que la localización es una variable válida o un valor constante
                 # 2. Asigne el tipo de la localización al nodo
                 if (self.current.lookup(node.location) not in tipos):
@@ -304,56 +299,89 @@ class CheckProgramVisitor(NodeVisitor):
                     node.type = self.current.lookup(node.location)
 
         def visit_LoadLocation(self,node):
+                print ("visit_LoadLocation")
+                print ("node : ", node)
                 # 1. Revisar que loa localización cargada es válida.
                 # 2. Asignar el tipo apropiado
-                print("node.name: ",node.name)
-                print("current",self.current)
+                print ("current:", self.current)
+                print ("symtab:", self.symtab)
                 sym = self.current.lookup(node.name)
-                print("sym:",sym)
+                print ("node.name:",node.name)
+                print ("sym:",type(sym))
                 assert(sym)
-                node.type = sym.type
+                node.type = sym
 
         def visit_Literal(self,node):
+                print ("visit_Literal")
+                print ("node : ", node.value)
                 # Adjunte un tipo apropiado a la constante
-                if isinstance(node.value, types.BooleanType):
+                print ("isString?",node.isString())
+                #if isinstance(node.value, types.BooleanType):
+                #if isinstance(node.value, bool):
+                if (node.isBoolean()):
                         node.type = self.symtab.lookup("bool")
-                elif isinstance(node.value, types.IntType):
+                #elif isinstance(node.value, types.IntType):
+                #elif isinstance(node.value, int):
+                #elif isinstance(node.value, int):
+                elif(node.isInteger()):
                         node.type = self.symtab.lookup("int")
-                elif isinstance(node.value, types.FloatType):
+                #elif isinstance(node.value, types.FloatType):
+                #elif isinstance(node.value, float):
+                elif (node.isFloat()):
                         node.type = self.symtab.lookup("float")
-                elif isinstance(node.value, types.StringTypes):
+                #elif isinstance(node.value, types.StringTypes):
+                #elif isinstance(node.value, str):
+                elif(node.isString()):
                         node.type = self.symtab.lookup("string")
 
+                print ("tipo : ", node.type)
+
         def visit_PrintStatement(self, node):
+                print ("visit_PrintStatement")
                 self.visit(node.expr)
+                print ("node.expr",node.expr)
+                node.type = self.current.lookup(node.expr.type)
+                print ("tipo:",node.type)
 
         def visit_Extern(self, node):
+                print ("visit_Extern")
                 # obtener el tipo retornado
                 # registe el nombre de la función
                 self.visit(node.func_prototype)
 
-        def visit_FuncPrototype(self, node): # ¿?
+        def visit_FuncPrototype(self, node):
+                print ("visit_FuncPrototype")
+                node.type = self.symtab.lookup(node.typename)
+                print ("visit_FuncPrototype")
                 if self.symtab.lookup(node.id):
                         error(node.lineno, "Símbol %s ya definido" % node.id)
                 else:
-                    self.symtab.add(node.id, node) # ¿?
+                    self.symtab.add(node.id, node.type)
                 self.visit(node.params)
-                #self.visit(node.typename) ¿?
-                node.type = self.symtab.lookup(node.typename)
 
         def visit_Parameters(self, node):
+                print ("visit_Parameters")
                 for p in node.param_decls:
                         self.visit(p)
 
         def visit_ParamDecl(self, node):
+                print ("visit_ParamDecl")
+                print ("node:",node)
+                print ("typename",node.typename)
+                self.current.add(node.id,self.current.lookup(node.typename))
                 node.type = self.current.lookup(node.typename)
                 #node.type = self.symtab.lookup(node.typename.typename) ¿?
 
         def visit_Group(self, node):
+                print ("visit_Group")
                 self.visit(node.expression)
                 node.type = node.expression.type
 
         def visit_RelationalOp(self, node):
+                print ("visit_RelationalOp")
+                print ("node : ", node)
+                print ("node_izq : ", node.left)
+                print ("node_der : ", node.right)
                 self.visit(node.left)
                 self.visit(node.right)
                 if not node.left.type == node.right.type:
@@ -363,14 +391,18 @@ class CheckProgramVisitor(NodeVisitor):
                 node.type = self.symtab.lookup('bool')
 
         def visit_FunCall(self, node):
-                if not self.current.lookup(node.id.location):
+                print ("visit_FunCall")
+                print ("node : ", node.id)
+                print ("buscando:",self.current.lookup(node.id))
+                print ("tabla:",self.current)
+                if not self.current.lookup(node.id):
                     error(node.lineno,"La funcion no esta definida ")
                 else:
                     self.visit(node.params)
-                    self.visit(node.id)
-                    node.type = node.id.type
+                    node.type = node.id
 
         def visit_ExprList(self, node):
+            print ("visit_ExprList")
             for p in node.expressions:
                 self.visit(p)
 
@@ -380,26 +412,32 @@ class CheckProgramVisitor(NodeVisitor):
         # Agregados
 
         def visit_Statements(self,node):
+            print ("visit_Statements")
             for s in node.statements:
                     self.visit(s)
 
         def visit_Statement(self,node):
+            print ("visit_Statement")
             self.visit(node.statement)
 
-        def visit_StoreVar(self,node):#j
+        def visit_StoreVar(self,node):
+            print ("visit_StoreVar")
             sym = self.current.lookup(node.name)
             assert(sym)
             node.type = sym.type
 
         def visit_Return(self,node):
+            print ("visit_Return")
             self.visit(node.expression)
 
         def visit_Opper(self,node):
+            print ("visit_Opper")
             sym = self.current.lookup(node.ID)
             assert(sym)
             node.type = sym.type
 
         def visit_ForStatement(self,node):
+            print ("visit_ForStatement")
             self.visit(node.condition)
             if not node.condition.type == gotype.boolean_type:
                 error(node.lineno,"Tipo incorrecto para la condicion for")
@@ -414,25 +452,31 @@ class CheckProgramVisitor(NodeVisitor):
                     else:
                         self.visit(node.body)
 
-        def visit_FuncDeclaration(self,node):#?¡
+        def visit_FuncDeclaration(self,node):
+            print ("visit_FuncDeclaration")
+            print ("node")
+            node.type = self.symtab.lookup(node.typename.typename)
+            print("tipo",node.type)
             if self.symtab.lookup(node.id):
                     error(node.lineno, "Símbol %s ya definido" % node.id)
             else:
-                self.symtab.add(node.id, node)
+                self.symtab.add(node.id, node.type)
             self.visit(node.params)
             self.visit(node.body)
-            node.type = self.symtab.lookup(node.typename.typename)
 
         def visit_Number(self,node):
+            print ("visit_Number")
             if not(node.type == gotype.int_type or node.type == gotype.float_type):
                 error(node.lineno,"Error en el tipo de dato")
             else:
                 self.visit(node.expression)
 
-        def visit_ReadStatement(self,node):#j
+        def visit_ReadStatement(self,node):
+            print ("visit_ReadStatement")
             self.visit(node.expression)
 
-        def visit_WriteStatement(self,node):#j
+        def visit_WriteStatement(self,node):
+            print ("visit_WriteStatement")
             self.visit(node.expression)
 
 
