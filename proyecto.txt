@@ -1,0 +1,16 @@
+(1) Arduino UNO R3
+(1) Sensor de Ultrasonido
+(1) Modulo bluetooth
+(1) Regulador 7805
+(2) Condensadores 10uf
+(20) Cables de conexion
+(1) Protoboard
+(1) Protoboard Min/
+(2) Motorreductores 1,5Kg de fuerza, 100RPM 3-12Vdc
+(2) Llantas para Motorreductores.
+(1) Base bateria 9Vdc
+(1) Bateria 9Vdc.
+(8) Transistores 2n2222a
+(10) Resistencias 1K ohm
+(1) Rueda Loca
+(8) diodos 1N4007

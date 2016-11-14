@@ -1,6 +1,6 @@
-sum := 1
+var sum int= 1;
 
-for i := 0; sum < 1000; i++ {
+for i := 0; sum < 1000; i++{
 		sum += sum
 }
 

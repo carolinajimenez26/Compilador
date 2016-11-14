@@ -132,7 +132,7 @@ class WhileStatement(AST):
     _fields = ['condition', 'body']
 
     def __repr__(self):
-        return ''
+        return '%r'% self.condition
 
 class LoadLocation(AST):
     _fields = ['name']
