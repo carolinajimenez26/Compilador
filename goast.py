@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import pydotplus
+import re
 
 # ---------------------------------------------------------
 # Nodos del Arbol de Sintaxis Abstracto
@@ -52,6 +53,37 @@ class Literal(AST):
     def __repr__(self):
         return '%r' % self.value
 
+    def isBoolean(self):
+        print ("isBoolean")
+        print (self.value)
+        p = re.compile("true|false")
+        if (p.match(str(self.value).strip("'")) != None):
+            return True
+        else:
+            return False
+
+    def isString(self):
+        print ("isString")
+        p = re.compile("'.*'")
+        if (p.match(str(self.value)) != None):
+            return True
+        else:
+            return False
+
+    def isInteger(self):
+        p = re.compile("0[xX][0-9a-fA-F]+|[\d]+|0[0-7]*")
+        if (p.match(str(self.value).strip("'")) != None):
+            return True
+        else:
+            return False
+
+    def isFloat(self):
+        p = re.compile("(\d*\.\d+|\d+\.\d*)([eE][-+]?\d+)?|\d+([eE][-+]?\d+)")
+        if (p.match(str(self.value).strip("'")) != None):
+            return True
+        else:
+            return False
+
 class Program(AST):
     _fields = ['program']
 
@@ -99,7 +131,7 @@ class Parameters(AST):
         return ''
 
 class ParamDecl(AST):
-    _fields = ['id', 'typename', 'vector']
+    _fields = ['id', 'typename']
 
     def __repr__(self):
         return '%r' % self.id
@@ -117,7 +149,7 @@ class ConstDeclaration(AST):
         return '%r' % self.id
 
 class VarDeclaration(AST):
-    _fields = ['id', 'typename', 'value', 'vector']
+    _fields = ['id', 'typename', 'value']
 
     def __repr__(self):
         return '%r' % self.id
@@ -207,7 +239,7 @@ class Return(AST):
         return ''
 
 class Location(AST):
-    _fields = ['location', 'vector']
+    _fields = ['location']
 
     def __repr__(self):
         return '%r' % self.location
@@ -230,18 +262,6 @@ class FuncDeclaration(AST):
 
     def __repr__(self):
         return '%r' % self.id
-
-class Number(AST):
-    _fields = ['value']
-
-    def __repr__(self):
-        return '%r' % self.value
-
-class VectorStatement(AST):
-    _fields = ['id']
-
-    def __repr__(self):
-        return ""
 
 class ReadStatement(AST):
     _fields = ['expression']
