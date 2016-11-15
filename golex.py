@@ -51,7 +51,9 @@ reserved = {
     'return'      : 'RETURN',
     'for'         : 'FOR',
     'read'        : 'READ',
-    'write'       : 'WRITE'
+    'write'       : 'WRITE',
+    'int'         : 'INT',
+    'bool'        : 'BOOL',
 }
 
 # ----------------------------------------------------------------------
@@ -204,7 +206,7 @@ def t_FLOAT(t):
     t.value = float(t.value)
     return t
 
-def t_INT(t):
+def t_INTEGER(t):
     r'0[xX][0-9a-fA-F]+|[\d]+|0[0-7]*'
     t.value = int(str(t.value),0)
     return t
@@ -217,7 +219,7 @@ def t_STRING(t):
 	t.value = _replace_escape_codes2(t)
 	return t
 
-def t_BOOL(t):
+def t_BOOLEAN(t):
     r'true|false'
     if t.value.upper() in tokens:
         t.type = t.value.upper()

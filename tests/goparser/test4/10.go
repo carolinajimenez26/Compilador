@@ -15,4 +15,5 @@ func sum() int {
 
 func main(x string, y bool) int {
 	sum();
+	var i float= 1.2
 }

@@ -42,9 +42,6 @@ class GoType(object):
                 self.bin_ops = bin_ops
                 self.un_ops = un_ops
 
-        def __repr__(self):
-            return '%r' % self.name
-
 
 # Crear instancias específicas de los tipos.  Usted tendrá que adicionar
 # los argumentos apropiados dependiendo de su definición de GoType
