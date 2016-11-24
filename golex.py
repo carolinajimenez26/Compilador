@@ -6,9 +6,9 @@ Compilador léxico
 Profesor: Angel Augusto Zapata
 Materia: Compiladores
 Integrantes:
-	Carolina Jimenez Gomez
-	Juan Diego Suarez
-	Carlos Enrique Angel
+    Carolina Jimenez Gomez
+    Juan Diego Suarez
+    Carlos Enrique Angel
 """
 from errors import error
 from ply.lex import lex
@@ -91,7 +91,7 @@ operators = {
     r'|'  : "OR",
     r'+=' : "POSITIVEINCREASE",
     r'++' : "INCREASE",
-	r'--' : "DECREASE",
+    r'--' : "DECREASE",
     r'-=' : "NEGATIVEINCREASE",
     r'*=' : "MULTIPLIINCREASE",
     r'/=' : "DIVIDEINCREASE",
@@ -214,10 +214,10 @@ def t_INTEGER(t):
 def t_STRING(t):
     #r'"[^"]*"'
     #r'"([^"](\\")?)*"'
-	r'".*"'
-	t.value = t.value[1:-1]
-	t.value = _replace_escape_codes2(t)
-	return t
+    r'".*"'
+    t.value = t.value[1:-1]
+    t.value = _replace_escape_codes2(t)
+    return t
 
 def t_BOOLEAN(t):
     r'true|false'

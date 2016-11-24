@@ -99,7 +99,7 @@ class Parameters(AST):
         return ''
 
 class ParamDecl(AST):
-    _fields = ['id', 'typename', 'vector']
+    _fields = ['id', 'typename']
 
     def __repr__(self):
         return '%r' % self.id
@@ -117,7 +117,7 @@ class ConstDeclaration(AST):
         return '%r' % self.id
 
 class VarDeclaration(AST):
-    _fields = ['id', 'typename', 'value', 'vector']
+    _fields = ['id', 'typename', 'value']
 
     def __repr__(self):
         return '%r' % self.id
@@ -132,7 +132,7 @@ class WhileStatement(AST):
     _fields = ['condition', 'body']
 
     def __repr__(self):
-        return '%r'% self.condition
+        return ''
 
 class LoadLocation(AST):
     _fields = ['name']
@@ -207,7 +207,7 @@ class Return(AST):
         return ''
 
 class Location(AST):
-    _fields = ['location', 'vector']
+    _fields = ['location']
 
     def __repr__(self):
         return '%r' % self.location
@@ -230,18 +230,6 @@ class FuncDeclaration(AST):
 
     def __repr__(self):
         return '%r' % self.id
-
-class Number(AST):
-    _fields = ['value']
-
-    def __repr__(self):
-        return '%r' % self.value
-
-class VectorStatement(AST):
-    _fields = ['id']
-
-    def __repr__(self):
-        return ""
 
 class ReadStatement(AST):
     _fields = ['expression']
