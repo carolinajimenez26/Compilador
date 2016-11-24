@@ -1,4 +1,4 @@
-//var a int = 8 + 5 * 5;
+var a int = 8 * 5 / 5;
 
 func testb() int {
     var y int = 69;

@@ -22,8 +22,8 @@ tokens = [
 
     # Operatores y delimitadores
     'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'ASSIGN', 'SEMI', 'RESIDUE',
-    'LPAREN', 'RPAREN', 'COMMA', 'LBRACE', 'RBRACE', 'COLONS',
-    'LBRACKET', 'RBRACKET', 'INCREASE', 'POSITIVEINCREASE',
+    'LPAREN', 'RPAREN', 'COMMA', 'LBRACE', 'RBRACE',
+    'INCREASE', 'POSITIVEINCREASE',
     'NEGATIVEINCREASE', 'DECREMENT','MULTIPLIINCREASE', 'DIVIDEINCREASE',
     'EVADETYPEDECLAR',
 
@@ -83,10 +83,7 @@ operators = {
     r'||' : "LOR",
     r'!'  : "LNOT",
 
-    r'['  : "LBRACKET",
-    r']'  : "RBRACKET",
     r':=' : "EVADETYPEDECLAR",
-    r':'  : "COLONS",
     r'&'  : "AND",
     r'|'  : "OR",
     r'+=' : "POSITIVEINCREASE",
@@ -131,9 +128,6 @@ t_NE      = r'!='
 #                                 NUEVOS
 # ----------------------------------------------------------------------
 t_RESIDUE          = r'%'
-t_LBRACKET         = r'\['
-t_RBRACKET         = r'\]'
-t_COLONS           = r':'
 t_EVADETYPEDECLAR  = r':='
 t_AND              = r'\&'
 t_OR               = r'\|'
