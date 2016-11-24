@@ -8,6 +8,6 @@ if 2 {
 
 while 2 {
    while "World" {
-   	print "Hola"
+   	print a
    }
 }

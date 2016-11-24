@@ -223,10 +223,15 @@ class CheckProgramVisitor(NodeVisitor):
                 self.visit(node.program)
 
         def visit_IfStatement(self, node):
-
+               
                 self.visit(node.condition)
+                
+
                 if not node.condition.type == gotype.boolean_type:
-                        error(node.lineno, "Tipo incorrecto para condición if")
+                        a=self.current.tipodato(node.condition.type)
+                        
+                        if not a == gotype.boolean_type:
+                            error(node.lineno, "Tipo incorrecto para condición if")
                 else:
                         self.visit(node.then_b)
                         if node.else_b:
@@ -251,6 +256,7 @@ class CheckProgramVisitor(NodeVisitor):
                 if not golex.operators[node.op] in node.left.type.un_ops:
                         error(node.lineno, "Operación no soportada con este tipo")
                 self.type = node.left.type
+                node.type=node.left.type
 
         def visit_BinaryOp(self, node):
                 
@@ -304,16 +310,18 @@ class CheckProgramVisitor(NodeVisitor):
                                         node.value = node.value.type
 
         def visit_ConstDeclaration(self,node):
-
+                
                 # 1. Revise que el nombre de la constante no se ha definido
                 if self.current.lookup(node.id):
                         error(node.lineno, "Símbol %s ya definido" %node.id)
                         self.visit(node.value)
                         node.type = node.value.type
+                        
                         #self.symtab.add(node.id, node.type)
                 # 2. Agrege una entrada a la tabla de símbolos
                 else:
                         self.visit(node.value)
+                        
                         node.type = node.value.type
                         #self.symtab.add(node.id, node.type)
                         self.current.add(node.id, node.type)
@@ -339,7 +347,11 @@ class CheckProgramVisitor(NodeVisitor):
                 
                 if node.value:
                         self.visit(node.value)
-                        assert(node.typename.typename == node.value.type.name)
+                       
+                        if isinstance(node.value.type,str):
+                            a=self.current.tipodato(node.value.type)
+                            
+                            assert(node.typename.typename == a.name)
                        # assert(node.typename == node.value.type.name)
                 # 4. Si no hay expresión, establecer un valor inicial para el valor
                 else:

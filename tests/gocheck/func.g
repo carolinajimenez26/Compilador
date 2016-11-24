@@ -1,11 +1,15 @@
 /* Sample function definitions */
-
+var a int =0;
 var lastfib int = 20;
 const startcount = 10;
+
+
 
 func add(x int, y int) int {
 	return x+y;
 }
+
+a=add(1,2);	 
 
 func fibonacci(n int) int {
 	if n > 1 {
