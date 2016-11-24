@@ -255,29 +255,23 @@ class CheckProgramVisitor(NodeVisitor):
 
         def visit_AssignmentStatement(self,node):
 
-                algo = str(node.location)
-
                 self.visit(node.value)
                 if node.asig==":=":
                         node.type=node.value.type
                         self.current.add(node.location.location, node.type)
 
-
-
                 sym = self.current.lookup(node.location)
 
-
                 if not sym:
-
                         error(node.lineno,"Variable %s no ha sido declarada" %node.location)
 
                 else:
                         node.type=node.value.type
                         self.current.add(node.location, node.type)
 
-                if not (sym == node.value.type):
+                if (sym != node.value.type):
                         error(node.lineno,"Tipos no coinciden en asignación")
-                node.value=node.value.type
+                node.value = node.value.type
 
         def visit_ConstDeclaration(self,node):
 
@@ -296,6 +290,10 @@ class CheckProgramVisitor(NodeVisitor):
 
                 node.type = self.current.lookup(node.typename.typename)
                 assert(node.type)
+                #print("node.value:",node.value.value.value)
+                #print("node.value:",dir(node.value))
+                #print("node.value.type:",node.value.type)
+                #print("node.typename.typename:",node.typename.typename)
                 #muestra la __repr__
                 # 1. Revise que el nombre de la variable no se ha definido
                 if self.current.lookup(node.id):
@@ -375,17 +373,17 @@ class CheckProgramVisitor(NodeVisitor):
                 self.visit(node.func_prototype)
 
         def visit_FuncPrototype(self, node):
-                print("fun prototu",node)
-                print (dir(types))
 
-                self.push_symtab(node)
                 self.visit(node.typename)
                 node.type = self.current.lookup(node.typename)
+
                 if self.current.lookup(node.id):
                         error(node.lineno, "Símbol %s ya definido" % node.id)
                 else:
-                    self.current.add(node.id, node.type) # ¿?
+                    self.current.add(node.id, node.type)
+                
                 self.visit(node.params)
+                self.push_symtab(node)
 
                 if not node.params.__class__.__name__ == "Empty" :
                     self.current.add(node.id , node.params.param_decls[0].type)
@@ -458,7 +456,7 @@ class CheckProgramVisitor(NodeVisitor):
 
         def visit_Opper(self,node):
             if not self.current.lookup(node.ID.location):
-                error(node.lineno,"La variable %s ya ha sido agregada" %node)
+                error(node.lineno,"La variable %s no ha sido declarada" %node.ID.location)
             node.type = gotype.int_type
             node.value=node
 
