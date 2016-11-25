@@ -1,12 +1,14 @@
 // Este no debe graficarlo
-func pow(lim float) float {
+/*func pow(lim float) float {
 	if v := pow(x, n); v < lim {
 		return v
 	}
 	return lim
-}
+}*/
 
 // Este debe graficarlo
+
+var v float =1.1;
 func pow(lim float) float {
 	if v < lim {
 		return v

@@ -6,9 +6,9 @@ Compilador léxico
 Profesor: Angel Augusto Zapata
 Materia: Compiladores
 Integrantes:
-	Carolina Jimenez Gomez
-	Juan Diego Suarez
-	Carlos Enrique Angel
+    Carolina Jimenez Gomez
+    Juan Diego Suarez
+    Carlos Enrique Angel
 """
 from errors import error
 from ply.lex import lex
@@ -22,8 +22,8 @@ tokens = [
 
     # Operatores y delimitadores
     'PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'ASSIGN', 'SEMI', 'RESIDUE',
-    'LPAREN', 'RPAREN', 'COMMA', 'LBRACE', 'RBRACE', 'COLONS',
-    'LBRACKET', 'RBRACKET', 'INCREASE', 'POSITIVEINCREASE',
+    'LPAREN', 'RPAREN', 'COMMA', 'LBRACE', 'RBRACE',
+    'INCREASE', 'POSITIVEINCREASE',
     'NEGATIVEINCREASE', 'DECREMENT','MULTIPLIINCREASE', 'DIVIDEINCREASE',
     'EVADETYPEDECLAR',
 
@@ -83,15 +83,12 @@ operators = {
     r'||' : "LOR",
     r'!'  : "LNOT",
 
-    r'['  : "LBRACKET",
-    r']'  : "RBRACKET",
     r':=' : "EVADETYPEDECLAR",
-    r':'  : "COLONS",
     r'&'  : "AND",
     r'|'  : "OR",
     r'+=' : "POSITIVEINCREASE",
     r'++' : "INCREASE",
-	r'--' : "DECREASE",
+    r'--' : "DECREASE",
     r'-=' : "NEGATIVEINCREASE",
     r'*=' : "MULTIPLIINCREASE",
     r'/=' : "DIVIDEINCREASE",
@@ -131,9 +128,6 @@ t_NE      = r'!='
 #                                 NUEVOS
 # ----------------------------------------------------------------------
 t_RESIDUE          = r'%'
-t_LBRACKET         = r'\['
-t_RBRACKET         = r'\]'
-t_COLONS           = r':'
 t_EVADETYPEDECLAR  = r':='
 t_AND              = r'\&'
 t_OR               = r'\|'
@@ -214,10 +208,10 @@ def t_INTEGER(t):
 def t_STRING(t):
     #r'"[^"]*"'
     #r'"([^"](\\")?)*"'
-	r'".*"'
-	t.value = t.value[1:-1]
-	t.value = _replace_escape_codes2(t)
-	return t
+    r'".*"'
+    t.value = t.value[1:-1]
+    t.value = _replace_escape_codes2(t)
+    return t
 
 def t_BOOLEAN(t):
     r'true|false'
