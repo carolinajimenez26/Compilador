@@ -260,15 +260,15 @@ class GenerateCode(goast.NodeVisitor):
 	def visit_Program(self,node):
 		self.visit(node.program)
 
-	#def visit_Statements(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+	def visit_Statements(self,node):
+		self.visit(node.expr)
+		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+		self.code.append(inst)
 
-	#def visit_Statement(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+	def visit_Statement(self,node):
+		self.visit(node.expr)
+		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+		self.code.append(inst)
 
 	def visit_ConstDeclaration(self,node):
 		# localice en memoria
@@ -297,26 +297,26 @@ class GenerateCode(goast.NodeVisitor):
 		self.code.append(inst)
 		node.gen_location = target
 
-	#def visit_Extern(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+	def visit_Extern(self,node):
+		self.visit(node.expr)
+		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+		self.code.append(inst)
 
-	#def visit_FuncPrototype(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+	def visit_FuncPrototype(self,node):
+		self.visit(node.expr)
+		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+		self.code.append(inst)
 
-	#def visit_Parameters(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
-	# node.gen_location = target
+	def visit_Parameters(self,node):
+		self.visit(node.expr)
+		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+		self.code.append(inst)
+		node.gen_location = target
 
-	#def visit_ParamDecl(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+	def visit_ParamDecl(self,node):
+		self.visit(node.expr)
+		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+		self.code.append(inst)
 
 	def visit_AssignmentStatement(self,node):
 		self.visit(node.value)
@@ -335,20 +335,59 @@ class GenerateCode(goast.NodeVisitor):
 	def visit_IfStatement(self,node):
 		pass
 
-	#def visit_Group(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+	def visit_WhileStatement(self,node):
+		pass
 
-	#def visit_FunCall(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+	def visit_Typename(self,node): #¿este es necesario?
+		pass
 
-	#def visit_ExprList(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+	def visit_Location(self,node): #¿este es necesario?
+		pass
+
+	def visit_RelationalOp(self,node): #¿este es necesario?
+		pass
+
+	def visit_Empty(self,node): #¿este es necesario?
+		pass
+
+	def visit_StoreVar(self,node):
+		pass
+
+	def visit_Return(self,node):
+		pass
+
+	def visit_Opper(self,node): #¿este es necesario?
+		pass
+
+	def visit_ForStatement(self,node): #¿este es necesario?
+		pass
+
+	def visit_FuncDeclaration(self,node): #¿este es necesario?
+		pass
+
+	def visit_Number(self,node): #¿este es necesario?
+		pass
+
+	def visit_ReadStatement(self,node): #¿este es necesario?
+		pass
+
+	def visit_WriteStatement(self,node): #¿este es necesario?
+		pass
+
+	def visit_Group(self,node):
+		self.visit(node.expr)
+		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+		self.code.append(inst)
+
+	def visit_FunCall(self,node):
+		self.visit(node.expr)
+		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+		self.code.append(inst)
+
+	def visit_ExprList(self,node):
+		self.visit(node.expr)
+		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+		self.code.append(inst)
 
 
 # PASO 3: Pruebas
