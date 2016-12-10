@@ -24,7 +24,7 @@ simples:
 
 	int_1 = 2
 	int_2 = 3
-	int_3 = 4
+	int_3 = 4s
 	int_4 = int_2 * int_3
 	int_5 = int_1 + int_4
 	int_6 = 5
@@ -165,8 +165,8 @@ operaciones:
 	('uneg_type',source,target) # target = -source
 	('print_type',source) # Print value of source
 '''
-import goast
-#import goblock
+import goast # se cambia a mgoast por goast
+#import mgoblock
 from collections import defaultdict
 
 # PASO 1: Mapee los nombres de los operadores símbolos tales
@@ -211,7 +211,7 @@ class GenerateCode(goast.NodeVisitor):
 		'''
 		Crea una variable temporal del tipo dado
 		'''
-		name = "__%s_%d" % (typeobj.name, self.versions[typeobj.name])
+		name = "%s_%d" % (typeobj.name, self.versions[typeobj.name])
 		self.versions[typeobj.name] += 1
 		return name
 
@@ -243,7 +243,7 @@ class GenerateCode(goast.NodeVisitor):
 
 		# Cree el opcode y agregelo a la lista
 		opcode = binary_ops[node.op] + "_" + node.left.type.name
-		inst = (opcode, node.left.gen_location, node.right.gen_location, target)
+		inst = (opcode, node.left, node.right, target)
 		self.code.append(inst)
 
 		# Almacene la localización del resultado en el node
@@ -254,21 +254,21 @@ class GenerateCode(goast.NodeVisitor):
 		self.visit(node.expr)
 
 		# Cree el opcode y agregelo a la lista
-		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+		inst = ('print_'+node.expr.type.name, node.expr)
 		self.code.append(inst)
 
 	def visit_Program(self,node):
 		self.visit(node.program)
 
-	def visit_Statements(self,node):
-		self.visit(node.expr)
-		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-		self.code.append(inst)
+	#def visit_Statements(self,node):
+	# self.visit(node.expr)
+	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+	# self.code.append(inst)
 
-	def visit_Statement(self,node):
-		self.visit(node.expr)
-		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-		self.code.append(inst)
+	#def visit_Statement(self,node):
+	# self.visit(node.expr)
+	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+	# self.code.append(inst)
 
 	def visit_ConstDeclaration(self,node):
 		# localice en memoria
@@ -288,106 +288,74 @@ class GenerateCode(goast.NodeVisitor):
 		# almacene pot. val inicial
 		if node.value:
 			self.visit(node.value)
-			inst = ('store_'+node.type.name, node.value.gen_location, node.id)
+			inst = ('store_'+node.type.name, node.value, node.id)
 			self.code.append(inst)
 
 	def visit_LoadLocation(self,node):
+		
 		target = self.new_temp(node.type)
-		inst = ('load_'+node.type.name, node.name, target)
+		inst = ('load_'+node.type.name, node, target)
 		self.code.append(inst)
 		node.gen_location = target
 
-	def visit_Extern(self,node):
-		self.visit(node.expr)
-		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-		self.code.append(inst)
+	#def visit_Extern(self,node):
+	# self.visit(node.expr)
+	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+	# self.code.append(inst)
 
-	def visit_FuncPrototype(self,node):
-		self.visit(node.expr)
-		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-		self.code.append(inst)
+	#def visit_FuncPrototype(self,node):
+	# self.visit(node.expr)
+	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+	# self.code.append(inst)
 
-	def visit_Parameters(self,node):
-		self.visit(node.expr)
-		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-		self.code.append(inst)
-		node.gen_location = target
+	#def visit_Parameters(self,node):
+	# self.visit(node.expr)
+	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+	# self.code.append(inst)
+	# node.gen_location = target
 
-	def visit_ParamDecl(self,node):
-		self.visit(node.expr)
-		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-		self.code.append(inst)
+	#def visit_ParamDecl(self,node):
+	# self.visit(node.expr)
+	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+	# self.code.append(inst)
 
 	def visit_AssignmentStatement(self,node):
+		
+		
 		self.visit(node.value)
 
-		inst = ('store_'+node.value.type.name, node.value.gen_location, node.location)
+		inst = ('store_'+node.value.type.name, node.value, node.location)
 		self.code.append(inst)
 
 	def visit_UnaryOp(self,node):
 		self.visit(node.left)
 		target = self.new_temp(node.type)
 		opcode = unary_ops[node.op] + "_" + node.left.type.name
-		inst = (opcode, node.left.gen_location)
+		inst = (opcode,node.left.gen_location,target) # se agregó target como tercer argumento
 		self.code.append(inst)
 		node.gen_location = target
 
+	# se agregó contenido al nodo if
 	def visit_IfStatement(self,node):
-		pass
+		self.visit(node.condition)
+		self.visit(node.then_b)
+		if node.else_b:
+			self.visit(node.else_b)
 
-	def visit_WhileStatement(self,node):
-		pass
+	#def visit_Group(self,node):
+	# self.visit(node.expr)
+	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+	# self.code.append(inst)
 
-	def visit_Typename(self,node): #¿este es necesario?
-		pass
+	#def visit_FunCall(self,node):
+	# self.visit(node.expr)
+	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+	# self.code.append(inst)
 
-	def visit_Location(self,node): #¿este es necesario?
-		pass
-
-	def visit_RelationalOp(self,node): #¿este es necesario?
-		pass
-
-	def visit_Empty(self,node): #¿este es necesario?
-		pass
-
-	def visit_StoreVar(self,node):
-		pass
-
-	def visit_Return(self,node):
-		pass
-
-	def visit_Opper(self,node): #¿este es necesario?
-		pass
-
-	def visit_ForStatement(self,node): #¿este es necesario?
-		pass
-
-	def visit_FuncDeclaration(self,node): #¿este es necesario?
-		pass
-
-	def visit_Number(self,node): #¿este es necesario?
-		pass
-
-	def visit_ReadStatement(self,node): #¿este es necesario?
-		pass
-
-	def visit_WriteStatement(self,node): #¿este es necesario?
-		pass
-
-	def visit_Group(self,node):
-		self.visit(node.expr)
-		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-		self.code.append(inst)
-
-	def visit_FunCall(self,node):
-		self.visit(node.expr)
-		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-		self.code.append(inst)
-
-	def visit_ExprList(self,node):
-		self.visit(node.expr)
-		inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-		self.code.append(inst)
+	#def visit_ExprList(self,node):
+	# self.visit(node.expr)
+	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
+	# self.code.append(inst)
 
 
 # PASO 3: Pruebas

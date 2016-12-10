@@ -41,6 +41,7 @@ class GoType(object):
                 self.name = name
                 self.bin_ops = bin_ops
                 self.un_ops = un_ops
+                
 
 
 # Crear instancias específicas de los tipos.  Usted tendrá que adicionar

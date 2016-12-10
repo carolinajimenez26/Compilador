@@ -291,7 +291,8 @@ class CheckProgramVisitor(NodeVisitor):
                                 
                                 if (sym != node.value.type):
                                         error(node.lineno,"Tipos no coinciden en asignación")
-                                node.value = node.value.type
+                                node.value = node.value
+                                
                   
 
                         else:
@@ -307,7 +308,7 @@ class CheckProgramVisitor(NodeVisitor):
                                 else:
                                         if(sym != a):
                                                 error(node.lineno,"Tipos no coinciden en asignación")
-                                        node.value = node.value.type
+                                        node.value = node.value
 
         def visit_ConstDeclaration(self,node):
                 
@@ -471,7 +472,10 @@ class CheckProgramVisitor(NodeVisitor):
                 else:
                     self.visit(node.params)
                     #self.visit(node.id)
-                    node.type = node.id
+                    
+
+                    node.type = self.current.lookup(node)
+
 
 
         def visit_ExprList(self, node):
@@ -503,6 +507,7 @@ class CheckProgramVisitor(NodeVisitor):
             self.visit(node.expression)
 
         def visit_Opper(self,node):
+            print("nodepér",node)
             if not self.current.lookup(node.ID.location):
                 error(node.lineno,"La variable %s no ha sido declarada" %node.ID.location)
             node.type = gotype.int_type

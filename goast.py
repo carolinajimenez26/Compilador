@@ -266,6 +266,7 @@ class NodeVisitor(object):
         VisitOps().visit(tree)
     '''
     def visit(self,node):
+        
         '''
         Ejecuta un método de la forma visit_NodeName(node) donde
         NodeName es el nombre de la clase de un nodo particular.
@@ -287,6 +288,8 @@ class NodeVisitor(object):
         Este examina el nodo para ver si tiene _fields, es una lista,
         o puede ser recorrido completamente.
         '''
+        
+       
         for field in getattr(node,"_fields"):
             value = getattr(node,field,None)
             if isinstance(value, list): # si value es una lista
