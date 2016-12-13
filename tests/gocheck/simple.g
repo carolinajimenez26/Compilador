@@ -6,7 +6,7 @@ func testb() int {
 }
 
 func test(x int) int {
-    if true {
+    if x<2 {
         return 6900000;
     } else {
         return 2;

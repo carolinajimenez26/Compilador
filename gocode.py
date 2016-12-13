@@ -165,7 +165,7 @@ operaciones:
 	('uneg_type',source,target) # target = -source
 	('print_type',source) # Print value of source
 '''
-import goast # se cambia a mgoast por goast
+import goast 
 #import mgoblock
 from collections import defaultdict
 
@@ -260,15 +260,16 @@ class GenerateCode(goast.NodeVisitor):
 	def visit_Program(self,node):
 		self.visit(node.program)
 
-	#def visit_Statements(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+	def visit_Statements(self,node):
+		
+		for s in node.statements:
+                    self.visit(s)
+		
 
-	#def visit_Statement(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+	def visit_Statement(self,node):
+		
+		self.visit(node.statement)
+	
 
 	def visit_ConstDeclaration(self,node):
 		# localice en memoria
@@ -298,26 +299,35 @@ class GenerateCode(goast.NodeVisitor):
 		self.code.append(inst)
 		node.gen_location = target
 
-	#def visit_Extern(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+	def visit_Extern(self,node):
+		
+		self.visit(node.func_prototype)
+	
 
-	#def visit_FuncPrototype(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+	def visit_FuncPrototype(self,node):
+		
+		self.visit(node.params)
+		inst = ('print_funpro_'+node.type.name, node)
+		self.code.append(inst)
 
-	#def visit_Parameters(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
-	# node.gen_location = target
+	#def visit_Parameters(self,node): #ya esta listo
+		#print("nodo paramerto",node)
+		#print("nodo paramerto",dir(node))
+		#for p in node.param_decls:
+			#if p != None:
+				#self.visit(p)
+				#print("nodo p",p)
+				#print("nodo p",dir(p))
+				#inst = ('print_'+p.type.name, p)
+				#self.code.append(inst)
+		#node.gen_location = node
 
-	#def visit_ParamDecl(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+	def visit_ParamDecl(self,node):
+		# localice en memoria
+		inst = ('alloc_'+node.type.name, node.id)
+		self.code.append(inst)
+		
+		
 
 	def visit_AssignmentStatement(self,node):
 		
@@ -342,22 +352,32 @@ class GenerateCode(goast.NodeVisitor):
 		if node.else_b:
 			self.visit(node.else_b)
 
-	#def visit_Group(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+	def visit_Group(self,node):
+		self.visit(node.expression)
+	
 
-	#def visit_FunCall(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+	def visit_FunCall(self,node):
+		self.visit(node.params)
+		inst = ('print_funcall_'+node.type.name, node )
+		self.code.append(inst)
 
 	#def visit_ExprList(self,node):
-	# self.visit(node.expr)
-	# inst = ('print_'+node.expr.type.name, node.expr.gen_location)
-	# self.code.append(inst)
+		#for p in node.expressions:
+			#self.visit(p)
+
+	#def visit_FuncDeclaration(self,node):
+		#self.visit(node.params)
+		#self.visit(node.body)
+		#inst = ('print_fundeclaration_'+node.type.name, node,node.params)
+		#self.code.append(inst)
+
+	def visit_Return(self,node):
+		self.visit(node.expression)
 
 
+	def visit_RelationalOp(self, node):
+		self.visit(node.left)
+		self.visit(node.right)
 # PASO 3: Pruebas
 #
 # Trate de correr este programa con el archivo de entrada

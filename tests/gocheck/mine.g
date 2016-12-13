@@ -1,5 +1,5 @@
 
-extern func putchar(c int) int;
+extern func putchar(c int, d string) int;
 
 func main() int {
     var i int = 0;
