@@ -165,7 +165,7 @@ operaciones:
 	('uneg_type',source,target) # target = -source
 	('print_type',source) # Print value of source
 '''
-import goast 
+import goast
 #import mgoblock
 from collections import defaultdict
 
@@ -254,6 +254,7 @@ class GenerateCode(goast.NodeVisitor):
 		self.visit(node.expr)
 
 		# Cree el opcode y agregelo a la lista
+		print ("nodo: ", node.expr)
 		inst = ('print_'+node.expr.type.name, node.expr)
 		self.code.append(inst)
 
@@ -261,15 +262,11 @@ class GenerateCode(goast.NodeVisitor):
 		self.visit(node.program)
 
 	def visit_Statements(self,node):
-		
 		for s in node.statements:
-                    self.visit(s)
-		
+        		self.visit(s)
 
 	def visit_Statement(self,node):
-		
 		self.visit(node.statement)
-	
 
 	def visit_ConstDeclaration(self,node):
 		# localice en memoria
@@ -293,47 +290,42 @@ class GenerateCode(goast.NodeVisitor):
 			self.code.append(inst)
 
 	def visit_LoadLocation(self,node):
-		
+
 		target = self.new_temp(node.type)
 		inst = ('load_'+node.type.name, node, target)
 		self.code.append(inst)
 		node.gen_location = target
 
 	def visit_Extern(self,node):
-		
+
 		self.visit(node.func_prototype)
-	
+
 
 	def visit_FuncPrototype(self,node):
-		
+
 		self.visit(node.params)
 		inst = ('print_funpro_'+node.type.name, node)
 		self.code.append(inst)
 
-	#def visit_Parameters(self,node): #ya esta listo
+	def visit_Parameters(self,node): #ya esta listo
 		#print("nodo paramerto",node)
 		#print("nodo paramerto",dir(node))
-		#for p in node.param_decls:
-			#if p != None:
-				#self.visit(p)
+		for p in node.param_decls:
+			if p != None:
+				self.visit(p)
 				#print("nodo p",p)
 				#print("nodo p",dir(p))
-				#inst = ('print_'+p.type.name, p)
-				#self.code.append(inst)
-		#node.gen_location = node
+				inst = ('print_'+p.type.name, p)
+				self.code.append(inst)
+		node.gen_location = node
 
 	def visit_ParamDecl(self,node):
 		# localice en memoria
 		inst = ('alloc_'+node.type.name, node.id)
 		self.code.append(inst)
-		
-		
 
 	def visit_AssignmentStatement(self,node):
-		
-		
 		self.visit(node.value)
-
 		inst = ('store_'+node.value.type.name, node.value, node.location)
 		self.code.append(inst)
 
@@ -354,30 +346,77 @@ class GenerateCode(goast.NodeVisitor):
 
 	def visit_Group(self,node):
 		self.visit(node.expression)
-	
 
 	def visit_FunCall(self,node):
 		self.visit(node.params)
 		inst = ('print_funcall_'+node.type.name, node )
 		self.code.append(inst)
 
-	#def visit_ExprList(self,node):
-		#for p in node.expressions:
-			#self.visit(p)
+	def visit_ExprList(self,node):
+		for p in node.expressions:
+			self.visit(p)
 
-	#def visit_FuncDeclaration(self,node):
-		#self.visit(node.params)
-		#self.visit(node.body)
-		#inst = ('print_fundeclaration_'+node.type.name, node,node.params)
-		#self.code.append(inst)
+	def visit_FuncDeclaration(self,node):
+		self.visit(node.params)
+		self.visit(node.body)
+		inst = ('print_fundeclaration_'+node.type.name, node,node.params)
+		self.code.append(inst)
 
 	def visit_Return(self,node):
 		self.visit(node.expression)
 
-
 	def visit_RelationalOp(self, node):
 		self.visit(node.left)
 		self.visit(node.right)
+
+	def visit_Typename(self, node):
+		self.visit(node.type)
+
+	def visit_Location(self, node):
+		pass
+
+	def visit_Empty(self, node):
+		pass
+
+	def visit_StoreVar(self, node):
+
+		inst = ('store_'+node.type.name, node.value)
+		self.code.append(inst)
+
+		node.gen_location = target
+
+	def visit_Opper(self, node):
+		pass
+
+	def visit_ForStatement(self, node):
+		self.visit(node.condition)
+		self.visit(node.statement)
+		self.visit(node.expression)
+		self.visit(node.body)
+
+	def visit_WhileStatement(self, node):
+		self.visit(node.condition)
+		self.visit(node.body)
+
+	"""def visit_Number(self, node):
+		self.visit(node.expression)
+
+		# Crea un nuevo nombre de variable temporal
+		target = self.new_temp(node.type)
+
+		# Cree opcode SSA y agregelo a lista de instrucciones generadas
+		inst = ('literal_'+node.type.name, node.value, target)
+		self.code.append(inst)
+
+		# Grabe nombre de variable temporal donde el valor fue colocado
+		node.gen_location = target"""
+
+	def visit_ReadStatment(self, node):
+		self.visit(node.expression)
+
+	def visit_WriteStatement(self, node):
+		self.visit(node.expression)
+
 # PASO 3: Pruebas
 #
 # Trate de correr este programa con el archivo de entrada
