@@ -161,18 +161,18 @@ class SymbolTable(object):
                                 return None
         def tipodato(self,a):
                 i=str(a)
-                i= i.strip("'") 
+                i= i.strip("'")
                 if i in self.symtab:
                         if(a!="int" and a!="float" and a!="bool" and a!="string"):
                                 return(self.symtab[i]);
-                        
+
                 else:
                         if self.parent != None:
                                 return(self.parent.tipodato(i))
                         else:
                                 return None
 
-                        
+
 
         def __repr__(self):
             return '%r' % self.symtab
@@ -223,13 +223,13 @@ class CheckProgramVisitor(NodeVisitor):
                 self.visit(node.program)
 
         def visit_IfStatement(self, node):
-               
+
                 self.visit(node.condition)
-                
+
 
                 if not node.condition.type == gotype.boolean_type:
                         a=self.current.tipodato(node.condition.type)
-                        
+
                         if not a == gotype.boolean_type:
                             error(node.lineno, "Tipo incorrecto para condición if")
                 else:
@@ -259,7 +259,7 @@ class CheckProgramVisitor(NodeVisitor):
                 node.type=node.left.type
 
         def visit_BinaryOp(self, node):
-                
+
                 # 1. Asegúrese que los operandos left y right tienen el mismo tipo
                 # 2. Asegúrese que la operación está soportada
                 # 3. Asigne el tipo resultante
@@ -268,13 +268,13 @@ class CheckProgramVisitor(NodeVisitor):
                 if node.left.type != node.right.type:
                     error(node.lineno,"Operación no valida %s" %node)
                 node.type = node.left.type
-                
+
 
         def visit_AssignmentStatement(self,node):
-                
+
                 self.visit(node.value)
-                
-                
+
+
                 if node.asig==":=":
                         node.type=node.value.type
                         self.current.add(node.location.location, node.type)
@@ -286,20 +286,21 @@ class CheckProgramVisitor(NodeVisitor):
 
                 else:
 
-                        
+
                         if str(node.value).strip("'")=="+" or str(node.value).strip("'")== "-" or node.value=="*" or node.value == "/":
-                                
+
                                 if (sym != node.value.type):
                                         error(node.lineno,"Tipos no coinciden en asignación")
-                                node.value = node.value.type
-                  
+                                node.value = node.value
+
+
 
                         else:
-                                
+
                                 a=self.current.tipodato(node.value)
-                                
+
                                 if a==None:
-                                        
+
                                         if (sym != node.value.type):
                                                 error(node.lineno,"Tipos no coinciden en asignación")
                                         node.value = node.value
@@ -307,21 +308,21 @@ class CheckProgramVisitor(NodeVisitor):
                                 else:
                                         if(sym != a):
                                                 error(node.lineno,"Tipos no coinciden en asignación")
-                                        node.value = node.value.type
+                                        node.value = node.value
 
         def visit_ConstDeclaration(self,node):
-                
+
                 # 1. Revise que el nombre de la constante no se ha definido
                 if self.current.lookup(node.id):
                         error(node.lineno, "Símbol %s ya definido" %node.id)
                         self.visit(node.value)
                         node.type = node.value.type
-                        
+
                         #self.symtab.add(node.id, node.type)
                 # 2. Agrege una entrada a la tabla de símbolos
                 else:
                         self.visit(node.value)
-                        
+
                         node.type = node.value.type
                         #self.symtab.add(node.id, node.type)
                         self.current.add(node.id, node.type)
@@ -344,13 +345,13 @@ class CheckProgramVisitor(NodeVisitor):
                         self.current.add(node.id, node.type)
 
                 # 2. Revise que el tipo de la expresión (si lo hay) es el mismo
-                
+
                 if node.value:
                         self.visit(node.value)
-                       
+
                         if isinstance(node.value.type,str):
                             a=self.current.tipodato(node.value.type)
-                            
+
                             assert(node.typename.typename == a.name)
                        # assert(node.typename == node.value.type.name)
                 # 4. Si no hay expresión, establecer un valor inicial para el valor
@@ -419,7 +420,7 @@ class CheckProgramVisitor(NodeVisitor):
                 self.visit(node.func_prototype)
 
         def visit_FuncPrototype(self, node):
-                
+
 
 
                 self.visit(node.typename)
@@ -429,7 +430,7 @@ class CheckProgramVisitor(NodeVisitor):
                         error(node.lineno, "Símbol %s ya definido" % node.id)
                 else:
                     self.current.add(node.id, node.type)
-                
+
                 self.visit(node.params)
                 self.push_symtab(node)
 
@@ -471,7 +472,10 @@ class CheckProgramVisitor(NodeVisitor):
                 else:
                     self.visit(node.params)
                     #self.visit(node.id)
-                    node.type = node.id
+
+
+                    node.type = self.current.lookup(node)
+
 
 
         def visit_ExprList(self, node):
@@ -503,6 +507,7 @@ class CheckProgramVisitor(NodeVisitor):
             self.visit(node.expression)
 
         def visit_Opper(self,node):
+            print("nodepér",node)
             if not self.current.lookup(node.ID.location):
                 error(node.lineno,"La variable %s no ha sido declarada" %node.ID.location)
             node.type = gotype.int_type
@@ -517,22 +522,23 @@ class CheckProgramVisitor(NodeVisitor):
             else:
 
                 self.visit(node.statement)
-                if not node.statement.statement.value == gotype.int_type:
+                
+                if not node.statement.statement.value.type == gotype.int_type:
                     error(node.lineno,"Tipo incorrecto para la asignacion for")
                 else:
                     self.visit(node.expression)
 
-                    if (node.expression.statement.type not in self.tipos):
+                    if (node.expression.statement.value.type not in self.tipos):
                         error(node.lineno,"Tipo incorrecto para la expresion for")
                     else:
                         self.visit(node.body)
 
         def visit_FuncDeclaration(self,node):#?¡
 
-            
+
 
             node.type = self.current.lookup(node.typename.typename)
-            
+
             if self.current.lookup(node.id):
                     error(node.lineno, "Símbol %s ya definido" %node.id)
             else:
@@ -543,7 +549,7 @@ class CheckProgramVisitor(NodeVisitor):
             self.visit(node.params)
             self.visit(node.body)
 
-           
+
             self.pop_symbol()
 
 
